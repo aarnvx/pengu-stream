@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#051e30">
+    <title>PenguStream — Recherche</title>
+    <link rel="stylesheet" href="window-pages.css">
+    <script src="window-pages.js" defer></script>
+    <script>
+        (function () {
+            function setTheme(theme) {
+                if (theme === 'octobre_rose' || theme === 'novembre_bleu') document.documentElement.dataset.theme = theme;
+                else delete document.documentElement.dataset.theme;
+            }
+            try { setTheme(localStorage.getItem('pengu_active_theme')); } catch (error) {}
+            window.addEventListener('message', function (event) {
+                var frame = document.querySelector('iframe');
+                if (frame && event.source === frame.contentWindow && event.data && event.data.type === 'pengu-theme-change') setTheme(event.data.theme);
+            });
+        })();
+    </script>
+</head>
+<body>
+    <iframe id="app" title="Recherche PenguStream" allow="fullscreen; autoplay"></iframe>
+    <noscript><p><a href="V100.html#recherche">Rechercher dans PenguStream</a></p></noscript>
+    <script>
+        var query = new URLSearchParams(window.location.search).get('q') || '';
+        document.getElementById('app').src = 'V100.html#recherche/' + encodeURIComponent(query);
+    </script>
+</body>
+</html>

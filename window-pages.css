@@ -1,0 +1,30 @@
+:root {
+    --window-background: #051e30;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--window-background);
+}
+
+html[data-theme="octobre_rose"] {
+    --window-background: #250d1d;
+}
+
+html[data-theme="novembre_bleu"] {
+    --window-background: #0b2540;
+}
+
+iframe {
+    display: block;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border: 0;
+    background: var(--window-background);
+}
