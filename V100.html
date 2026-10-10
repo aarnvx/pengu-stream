@@ -8963,6 +8963,13 @@
             /* ═══════════════════════════════════
                LECTEUR
             ═══════════════════════════════════ */
+            function protectPlayerEmbed(html) {
+                return String(html || '').replace(/<iframe\b[^>]*>/gi, function (iframeTag) {
+                    var safeTag = iframeTag.replace(/\s+sandbox(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi, '');
+                    return safeTag.slice(0, -1) + ' sandbox="allow-scripts allow-same-origin allow-forms allow-presentation">';
+                });
+            }
+
             function transformUrl(url, params) {
                 var selector = document.getElementById('player-source-selector');
                 var source = selector ? selector.value : 'zenix';
@@ -9018,7 +9025,7 @@
                     if (processed.indexOf('<iframe') !== -1) {
                         processed = '<div style="color:rgba(255,255,255,0.7);text-align:center;padding:15px;font-size:0.9rem;background:rgba(255,255,255,0.05);border-radius:10px;margin-bottom:15px;">⏳ Le chargement de la vidéo peut durer plusieurs secondes, voire plusieurs minutes. Merci de patienter...</div>' + processed;
                     }
-                    document.getElementById('player-embed-container').innerHTML = processed;
+                    document.getElementById('player-embed-container').innerHTML = protectPlayerEmbed(processed);
                 }
             };
 
@@ -9080,7 +9087,7 @@
                     if (processed.indexOf('<iframe') !== -1) {
                         processed = '<div style="color:rgba(255,255,255,0.7);text-align:center;padding:15px;font-size:0.9rem;background:rgba(255,255,255,0.05);border-radius:10px;margin-bottom:15px;">⏳ Le chargement de la vidéo peut durer plusieurs secondes, voire plusieurs minutes. Merci de patienter...</div>' + processed;
                     }
-                    document.getElementById('player-embed-container').innerHTML = processed;
+                    document.getElementById('player-embed-container').innerHTML = protectPlayerEmbed(processed);
                     
                     if (window.getProgress) {
                         var ctx = window.getProgress('film', window._lastDetailItem ? window._lastDetailItem.id : null);
@@ -9163,7 +9170,7 @@
                 if (processed.indexOf('<iframe') !== -1) {
                     processed = '<div style="color:rgba(255,255,255,0.7);text-align:center;padding:15px;font-size:0.9rem;background:rgba(255,255,255,0.05);border-radius:10px;margin-bottom:15px;">⏳ Le chargement de la vidéo peut durer plusieurs secondes, voire plusieurs minutes. Merci de patienter...</div>' + processed;
                 }
-                document.getElementById('player-embed-container').innerHTML = processed;
+                document.getElementById('player-embed-container').innerHTML = protectPlayerEmbed(processed);
                 document.getElementById('player-embed-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
             };
 
