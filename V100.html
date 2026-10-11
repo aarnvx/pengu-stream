@@ -4,13 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#051e30">
     <meta name="google-site-verification" content="bSP9qBtH2qctx8x5rJsCVrlZ8AYkbnVB6rHrFHr1nW4" />
     <meta name="description" content="PenguStream - Le Streaming Glacial. Regardez films, séries et animés gratuitement, sans publicités, en streaming illimité.">
     <meta property="og:title" content="PenguStream - Le Streaming Glacial">
     <meta property="og:description" content="Films, séries et animés en streaming gratuit.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://aaripotere1256.github.io/pengu-stream/">
+    <meta property="og:url" content="https://pengustream.com/">
     <title>PenguStream - Le Streaming Glacial</title>
+    <link rel="icon" type="image/png" href="Emoji/icon.png">
+    <link rel="apple-touch-icon" href="Emoji/icon.png">
+    <link rel="canonical" href="https://pengustream.com/">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800&display=swap"
@@ -8024,7 +8028,7 @@
                 <div class="divider">ou continuer avec</div>
                 <div class="social-btns">
                     <button class="btn-social"
-                        onclick="sb.auth.signInWithOAuth({provider:'discord', options:{redirectTo:'https://aaripotere1256.github.io/pengu-stream/'}})">
+                        onclick="sb.auth.signInWithOAuth({provider:'discord', options:{redirectTo:window.location.origin + '/'}})">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 127.14 96.36"
                             style="flex-shrink:0;vertical-align:middle;margin-right:6px;">
                             <path fill="#fff"
@@ -8033,7 +8037,7 @@
                         Discord
                     </button>
                     <button class="btn-social"
-                        onclick="sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:'https://aaripotere1256.github.io/pengu-stream/'}})">
+                        onclick="sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:window.location.origin + '/'}})">
                         <svg width="18" height="18" viewBox="0 0 24 24"
                             style="margin-right:6px;vertical-align:middle;flex-shrink:0;">
                             <path fill="#4285F4"
@@ -8076,7 +8080,7 @@
                 <div class="divider">ou continuer avec</div>
                 <div class="social-btns">
                     <button class="btn-social"
-                        onclick="sb.auth.signInWithOAuth({provider:'discord', options:{redirectTo:'https://aaripotere1256.github.io/pengu-stream/'}})">
+                        onclick="sb.auth.signInWithOAuth({provider:'discord', options:{redirectTo:window.location.origin + '/'}})">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 127.14 96.36"
                             style="flex-shrink:0;vertical-align:middle;margin-right:6px;">
                             <path fill="#fff"
@@ -8085,7 +8089,7 @@
                         Discord
                     </button>
                     <button class="btn-social"
-                        onclick="sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:'https://aaripotere1256.github.io/pengu-stream/'}})">
+                        onclick="sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:window.location.origin + '/'}})">
                         <svg width="18" height="18" viewBox="0 0 24 24"
                             style="margin-right:6px;vertical-align:middle;flex-shrink:0;">
                             <path fill="#4285F4"
@@ -8145,7 +8149,7 @@
             );
             window.sb = sb;
             window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
-            window.RESET_LINK_BASE = 'https://aaripotere1256.github.io/pengu-stream';
+            window.RESET_LINK_BASE = window.location.origin;
             window._activeThemePromise = sb.from('settings').select('value').eq('key', 'active_theme').maybeSingle()
                 .then(function (result) {
                     if (result.error) {
@@ -14169,7 +14173,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         username: 'PenguStream 🐧',
-                        avatar_url: 'https://aaripotere1256.github.io/pengu-stream/penguin.png',
+                        avatar_url: new URL('Emoji/icon.png', window.location.href).href,
                         embeds: [embed]
                     })
                 }).then(function (r) {
