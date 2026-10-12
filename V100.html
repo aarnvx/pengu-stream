@@ -8350,7 +8350,7 @@
                         placeholder="pingouin@arctique.fr"></div>
                 <div class="form-group"><label>Mot de passe</label><input type="password" id="login-pass"
                         placeholder="••••••••"></div>
-                <div style="text-align:right;margin-bottom:15px;margin-top:-7px;"><a href="#" onclick="event.preventDefault(); closeModal(); openPasswordReset();"
+                <div style="text-align:right;margin-bottom:15px;margin-top:-7px;"><a href="#" onclick="event.preventDefault(); openPasswordResetFromLogin();"
                         style="color:var(--aurora1);font-size:.8rem;font-weight:700;cursor:pointer;">Mot de passe oublié ?</a></div>
                 <button class="btn-submit" id="btn-login" onclick="handleLogin()">🐧 Se connecter</button>
                 <div class="divider">ou continuer avec</div>
@@ -14540,6 +14540,7 @@
         var currentStep = 1;
         var userEmail = '';
         var resetCode = '';
+        var resetReturnToLogin = false;
 
         // Elements
         var alertEl = document.getElementById('reset-alert');
@@ -14552,10 +14553,28 @@
             emailInput.focus();
         };
 
+        window.openPasswordResetFromLogin = function () {
+            resetReturnToLogin = true;
+            var authModal = document.getElementById('authModal');
+            if (authModal) authModal.classList.remove('active');
+            document.body.style.overflow = 'hidden';
+            window.openPasswordReset();
+        };
+
         window.closePasswordReset = function () {
-            if (window.exitDedicatedPageToHome) window.exitDedicatedPageToHome();
             document.getElementById('password-reset-modal').classList.remove('active');
             goResetStep(1);
+            if (resetReturnToLogin) {
+                resetReturnToLogin = false;
+                var authModal = document.getElementById('authModal');
+                if (authModal) {
+                    window.switchView('login');
+                    authModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    return;
+                }
+            }
+            document.body.style.overflow = '';
         };
 
         window.goResetStep = function (step) {
@@ -14724,7 +14743,6 @@
                 showAlert('✅ Mot de passe réinitialisé !', 'success');
                 setTimeout(function () {
                     closePasswordReset();
-                    window.openModal('login');
                     window.toast('✅ Tu peux maintenant te connecter ! 🐧');
                 }, 1500);
             } catch (error) {
