@@ -6306,6 +6306,13 @@
     <div id="theme-particles"></div>
     <script>
         (function () {
+            try {
+                ['pengu_active_theme', 'pengu_page1_cache_v2', 'pengu_smart_catalog_history'].forEach(function (key) {
+                    localStorage.removeItem(key);
+                });
+            } catch (error) {
+                console.warn('Impossible de nettoyer les anciennes données locales.', error);
+            }
             var knownThemes = ['hiver', 'noel', 'halloween', 'paques', 'valentin', 'octobre_rose', 'novembre_bleu', 'printemps', 'ete', 'feu_artifice', 'automne'];
             window.PENGU_THEME_IDS = knownThemes;
             var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -6337,14 +6344,6 @@
                 return 'https://fluxora.sbs/embed/zenix?' + params.toString();
             };
             var theme = null;
-            try {
-                theme = localStorage.getItem('pengu_active_theme');
-                if (knownThemes.indexOf(theme) !== -1) {
-                    document.body.classList.add('theme-' + theme);
-                }
-            } catch (error) {
-                console.warn('Impossible de restaurer le thème en cache.', error);
-            }
             if (window.parent !== window && (theme === 'octobre_rose' || theme === 'novembre_bleu')) {
                 window.parent.postMessage({ type: 'pengu-theme-change', theme: theme }, '*');
             }
@@ -7482,7 +7481,6 @@
                     }
 
                     _globalFilmCleanupPreview = null;
-                    try { localStorage.removeItem('pengu_page1_cache_v2'); } catch (cacheError) { console.warn('Impossible de vider le cache du catalogue.', cacheError); }
                     if (window.applyFilters) window.applyFilters();
                     if (window.loadFilmsList) window.loadFilmsList();
                     if (errors.length) {
@@ -8437,11 +8435,6 @@
                     if (!themeId || window.PENGU_THEME_IDS.indexOf(themeId) === -1) return null;
                     window.PENGU_THEME_IDS.forEach(function (id) { document.body.classList.remove('theme-' + id); });
                     document.body.classList.add('theme-' + themeId);
-                    try {
-                        localStorage.setItem('pengu_active_theme', themeId);
-                    } catch (error) {
-                        console.warn('Impossible de mettre le thème global en cache local.', error);
-                    }
                     return themeId;
                 })
                 .catch(function (error) {
@@ -8946,31 +8939,18 @@
                 currentCatFilter = cat;
                 applyFilters();
             };
+            var smartCatalogHistory = [];
             function getSmartCatalogPreferences() {
-                try {
-                    var raw = localStorage.getItem('pengu_smart_catalog_history') || '[]';
-                    var history = JSON.parse(raw);
-                    if (!Array.isArray(history)) history = [];
-                    var counts = {};
-                    history.forEach(function (item) {
-                        if (!item || !item.cat) return;
-                        counts[item.cat] = (counts[item.cat] || 0) + 1;
-                    });
-                    return Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
-                } catch (e) {
-                    return [];
-                }
+                var counts = {};
+                smartCatalogHistory.forEach(function (item) {
+                    if (!item || !item.cat) return;
+                    counts[item.cat] = (counts[item.cat] || 0) + 1;
+                });
+                return Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
             }
-
             function recordSmartCatalogView(type, cat) {
-                try {
-                    var raw = localStorage.getItem('pengu_smart_catalog_history') || '[]';
-                    var history = JSON.parse(raw);
-                    if (!Array.isArray(history)) history = [];
-                    history.push({ type: type, cat: cat, ts: Date.now() });
-                    if (history.length > 40) history = history.slice(-40);
-                    localStorage.setItem('pengu_smart_catalog_history', JSON.stringify(history));
-                } catch (e) {}
+                smartCatalogHistory.push({ type: type, cat: cat, ts: Date.now() });
+                if (smartCatalogHistory.length > 40) smartCatalogHistory = smartCatalogHistory.slice(-40);
             }
 
             var _totalItemsCount = 0;
@@ -8991,22 +8971,6 @@
                 
                 var startIdx = (page - 1) * ITEMS_PER_PAGE;
                 var endIdx = startIdx + ITEMS_PER_PAGE - 1;
-                
-                // CACHE: Load page 1 instantly
-                var cacheKey = 'pengu_page1_cache_v2';
-                var isDefaultView = (page === 1 && currentTypeFilter === 'all' && currentCatFilter === 'all' && !searchVal);
-                if (isDefaultView && !window._homeCacheLoaded) {
-                    try {
-                        var cachedStr = localStorage.getItem(cacheKey);
-                        if (cachedStr) {
-                            var cached = JSON.parse(cachedStr);
-                            _totalItemsCount = cached.total;
-                            renderCards(cached.items);
-                            if (loadingBar) loadingBar.classList.remove('active');
-                            window._homeCacheLoaded = true;
-                        }
-                    } catch(e) {}
-                }
                 
                 _currentPage = page;
                 var currentItems = [];
@@ -9077,10 +9041,6 @@
 
                     if (currentTypeFilter === 'all' || currentTypeFilter === 'saga') {
                         currentItems = currentItems.slice(0, ITEMS_PER_PAGE);
-                    }
-                    
-                    if (isDefaultView) {
-                        try { localStorage.setItem(cacheKey, JSON.stringify({ total: _totalItemsCount, items: currentItems })); } catch(e) {}
                     }
                     
                     try {
@@ -12113,12 +12073,6 @@
             function applyTheme(themeId, save) {
                 var theme = THEMES.find(function (t) { return t.id === themeId; }) || THEMES[0];
                 currentThemeId = theme.id;
-                try {
-                    localStorage.setItem('pengu_active_theme', theme.id);
-                } catch (error) {
-                    console.warn('Impossible de mettre le thème en cache local.', error);
-                }
-
                 // Retirer toutes les classes de thème
                 THEMES.forEach(function (t) {
                     document.body.classList.remove('theme-' + t.id);
@@ -12259,15 +12213,6 @@
             // Rendre accessible pour l'onglet du panel
             window.renderThemeGrid = renderThemeGrid;
 
-            var cachedThemeId = null;
-            try {
-                cachedThemeId = localStorage.getItem('pengu_active_theme');
-            } catch (error) {
-                console.warn('Impossible de lire le thème en cache local.', error);
-            }
-            if (THEMES.some(function (theme) { return theme.id === cachedThemeId; })) {
-                applyTheme(cachedThemeId, false);
-            }
             if (window._activeThemePromise) {
                 window._activeThemePromise.then(function (themeId) {
                     if (themeId && themeId !== currentThemeId) applyTheme(themeId, false);

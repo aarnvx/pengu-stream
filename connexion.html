@@ -15,7 +15,6 @@
                 if (theme === 'octobre_rose' || theme === 'novembre_bleu') document.documentElement.dataset.theme = theme;
                 else delete document.documentElement.dataset.theme;
             }
-            try { setTheme(localStorage.getItem('pengu_active_theme')); } catch (error) {}
             window.addEventListener('message', function (event) {
                 var frame = document.querySelector('iframe');
                 if (frame && event.source === frame.contentWindow && event.data && event.data.type === 'pengu-theme-change') setTheme(event.data.theme);
