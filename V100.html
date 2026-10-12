@@ -6360,6 +6360,14 @@
             }
 
             window.optimizeImageUrl = optimizeImageUrl;
+            window.optimizeCardPosterUrl = function (url) {
+                if (typeof url !== 'string') return url;
+                var size = window.devicePixelRatio <= 1 ? 'w185' : 'w342';
+                return url.replace(
+                    /^https:\/\/image\.tmdb\.org\/t\/p\/(?:w\d+|original)\//,
+                    'https://image.tmdb.org/t/p/' + size + '/'
+                );
+            };
 
             function optimizeImages(root) {
                 if (!root) return;
@@ -8844,7 +8852,7 @@
                         var g = catGradient(item.cat); var c1 = item.c1 || g.c1; var c2 = item.c2 || g.c2;
                         
                         var thumb = '<div class="card-thumb" style="background:linear-gradient(135deg,' + c1 + ',' + c2 + ');position:relative">';
-                        if (item.thumbUrl) thumb += '<img src="' + item.thumbUrl + '" alt="' + item.title + '" loading="lazy" onerror="this.style.display=\'none\'">';
+                        if (item.thumbUrl) thumb += '<img src="' + window.optimizeCardPosterUrl(item.thumbUrl) + '" alt="' + item.title + '" loading="lazy" onerror="this.style.display=\'none\'">';
                         else thumb += '<div style="font-size:3.5rem;line-height:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;inset:0;">' + item.emoji + '</div>';
                         if (item.access === 'vip') thumb += '<span class="card-vip-lock">👑 VIP</span>';
                         thumb += '<div class="card-play-btn"><div class="card-play-icon' + (item.embedCode ? '' : ' no-video') + '">' + (item.embedCode ? '▶' : '🔒') + '</div></div>';
@@ -8873,7 +8881,7 @@
                         var nbEp = (item.episodes ? item.episodes.length : 0) || (item.tmdb_id ? 1 : 0);
                         
                         var thumb = '<div class="card-thumb" style="background:linear-gradient(135deg,' + c1 + ',' + c2 + ');position:relative">';
-                        if (item.thumbUrl) thumb += '<img src="' + item.thumbUrl + '" alt="' + item.title + '" loading="lazy" onerror="this.style.display=\'none\'">';
+                        if (item.thumbUrl) thumb += '<img src="' + window.optimizeCardPosterUrl(item.thumbUrl) + '" alt="' + item.title + '" loading="lazy" onerror="this.style.display=\'none\'">';
                         else thumb += '<div style="font-size:3.5rem;line-height:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;inset:0;">' + item.emoji + '</div>';
                         if (item.access === 'vip') thumb += '<span class="card-vip-lock">👑 VIP</span>';
                         thumb += '<div class="card-play-btn"><div class="card-play-icon' + (nbEp > 0 ? '' : ' no-video') + '">' + (nbEp > 0 ? '▶' : '🔒') + '</div></div>';
