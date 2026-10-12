@@ -7290,13 +7290,219 @@
                     <button class="btn-tmdb" onclick="runGlobalTMDBUpdate('film')" id="btn-run-global-film" style="padding:10px 20px;font-size:1rem;cursor:pointer;">🚀 Maj Tous Les Films</button>
                     <button class="btn-tmdb" onclick="runGlobalTMDBUpdate('serie')" id="btn-run-global-serie" style="padding:10px 20px;font-size:1rem;cursor:pointer;background:linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);">🚀 Maj Toutes Les Séries</button>
                 </div>
+                <div style="margin-bottom:20px;">
+                    <button class="btn-fp-danger" onclick="previewGlobalFilmCleanup()" id="btn-cleanup-global-films" type="button" style="padding:10px 20px;font-size:1rem;cursor:pointer;">🧹 Nettoyer les films sans description ou au titre non latin</button>
+                    <p style="color:rgba(255,255,255,.55);font-size:.82rem;margin:8px 0 0;">Un aperçu sera affiché avant suppression. Les titres latins accentués et les films verrouillés sont conservés.</p>
+                </div>
                 
-                <div id="global-tmdb-log" style="background:rgba(0,0,0,.3);padding:15px;border-radius:10px;height:300px;overflow-y:auto;font-family:monospace;font-size:.85rem;color:rgba(255,255,255,.8);line-height:1.4;">
+                <div id="global-tmdb-log" aria-live="polite" style="background:rgba(0,0,0,.3);padding:15px;border-radius:10px;height:300px;overflow-y:auto;font-family:monospace;font-size:.85rem;color:rgba(255,255,255,.8);line-height:1.4;">
                     En attente...
                 </div>
             </div>
 
             <script>
+            var _globalFilmCleanupPreview = null;
+            var _globalFilmCleanupBusy = false;
+
+            function _isGlobalFilmCleanupCandidate(film) {
+                var descriptionMissing = film.description == null || String(film.description).trim() === '';
+                var title = String(film.title || '');
+                var hasNonLatinLetter = Array.from(title).some(function(character) {
+                    return /\p{L}/u.test(character) && !/\p{Script=Latin}/u.test(character);
+                });
+                return {
+                    matches: descriptionMissing || hasNonLatinLetter,
+                    descriptionMissing: descriptionMissing,
+                    hasNonLatinLetter: hasNonLatinLetter
+                };
+            }
+
+            async function _getGlobalFilmCleanupMatches() {
+                var films = [];
+                var page = 0;
+                var pageSize = 500;
+                while (true) {
+                    var response = await window.sb.from('films').select('id,title,description').range(page * pageSize, (page + 1) * pageSize - 1);
+                    if (response.error) throw response.error;
+                    if (!response.data || response.data.length === 0) break;
+                    films = films.concat(response.data);
+                    if (response.data.length < pageSize) break;
+                    page++;
+                }
+
+                var lockedMap = (typeof window._getLockedMap === 'function') ? window._getLockedMap() : {};
+                var matches = [];
+                var lockedCount = 0;
+                films.forEach(function(film) {
+                    var result = _isGlobalFilmCleanupCandidate(film);
+                    if (!result.matches) return;
+                    if (lockedMap['film_' + film.id]) {
+                        lockedCount++;
+                        return;
+                    }
+                    matches.push({
+                        id: film.id,
+                        title: String(film.title || '(sans titre)'),
+                        descriptionMissing: result.descriptionMissing,
+                        hasNonLatinLetter: result.hasNonLatinLetter
+                    });
+                });
+                return { matches: matches, lockedCount: lockedCount };
+            }
+
+            function _showGlobalFilmCleanupPreview(matches, lockedCount) {
+                var modal = document.createElement('div');
+                modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10050;backdrop-filter:blur(4px);';
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-modal', 'true');
+                modal.setAttribute('aria-labelledby', 'global-film-cleanup-title');
+
+                var box = document.createElement('div');
+                box.style.cssText = 'background:#10101d;border:1px solid rgba(255,255,255,.14);border-radius:14px;width:100%;max-width:620px;max-height:85vh;overflow:auto;padding:22px;color:#fff;box-shadow:0 16px 48px rgba(0,0,0,.55);';
+
+                var heading = document.createElement('h2');
+                heading.id = 'global-film-cleanup-title';
+                heading.textContent = 'Aperçu du nettoyage';
+                heading.style.cssText = 'margin:0 0 12px;font-size:1.25rem;';
+
+                var summary = document.createElement('p');
+                summary.textContent = matches.length + ' film(s) à supprimer : description vide ou titre avec des lettres non latines. ' + lockedCount + ' film(s) verrouillé(s) répondant aux critères seront conservés.';
+                summary.style.cssText = 'color:rgba(255,255,255,.78);line-height:1.5;';
+
+                var list = document.createElement('ul');
+                list.style.cssText = 'max-height:250px;overflow:auto;padding-left:22px;color:rgba(255,255,255,.78);';
+                matches.slice(0, 20).forEach(function(film) {
+                    var item = document.createElement('li');
+                    var reasons = [];
+                    if (film.descriptionMissing) reasons.push('sans description');
+                    if (film.hasNonLatinLetter) reasons.push('titre non latin');
+                    item.textContent = film.title + ' — ' + reasons.join(', ');
+                    item.style.marginBottom = '6px';
+                    list.appendChild(item);
+                });
+                if (matches.length > 20) {
+                    var remaining = document.createElement('li');
+                    remaining.textContent = '… et ' + (matches.length - 20) + ' autre(s).';
+                    list.appendChild(remaining);
+                }
+
+                var actions = document.createElement('div');
+                actions.style.cssText = 'display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:20px;';
+                var cancel = document.createElement('button');
+                cancel.type = 'button';
+                cancel.textContent = 'Annuler';
+                cancel.style.cssText = 'background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);padding:10px 16px;border-radius:8px;cursor:pointer;';
+                cancel.addEventListener('click', function() {
+                    _globalFilmCleanupPreview = null;
+                    modal.remove();
+                });
+                var confirmButton = document.createElement('button');
+                confirmButton.type = 'button';
+                confirmButton.textContent = '🗑️ Supprimer ces ' + matches.length + ' films';
+                confirmButton.disabled = matches.length === 0;
+                confirmButton.style.cssText = 'background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;border:0;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:700;';
+                confirmButton.addEventListener('click', function() {
+                    window.confirmGlobalFilmCleanup(modal);
+                });
+                actions.appendChild(cancel);
+                actions.appendChild(confirmButton);
+                box.appendChild(heading);
+                box.appendChild(summary);
+                box.appendChild(list);
+                box.appendChild(actions);
+                modal.appendChild(box);
+                document.body.appendChild(modal);
+                confirmButton.focus();
+            }
+
+            window.previewGlobalFilmCleanup = async function() {
+                if (window.currentRole !== 'fondateur') { window.toast('🚫 Accès réservé au fondateur.', true); return; }
+                if (_globalFilmCleanupBusy) return;
+                if (!window.sb) { window.toast('❌ Connexion à la base de données indisponible.', true); return; }
+                var button = document.getElementById('btn-cleanup-global-films');
+                var logDiv = document.getElementById('global-tmdb-log');
+                _globalFilmCleanupBusy = true;
+                _globalFilmCleanupPreview = null;
+                if (button) button.disabled = true;
+                if (logDiv) logDiv.textContent = 'Analyse paginée des films…';
+                try {
+                    var result = await _getGlobalFilmCleanupMatches();
+                    _globalFilmCleanupPreview = result.matches;
+                    if (logDiv) logDiv.textContent = result.matches.length
+                        ? result.matches.length + ' film(s) correspondent. Vérifie l’aperçu avant toute suppression.'
+                        : 'Aucun film à supprimer selon ces critères. ' + result.lockedCount + ' film(s) verrouillé(s) ont été conservés.';
+                    _showGlobalFilmCleanupPreview(result.matches, result.lockedCount);
+                } catch (error) {
+                    console.error('previewGlobalFilmCleanup error', error);
+                    if (logDiv) logDiv.textContent = 'Erreur pendant l’analyse : ' + (error.message || error);
+                    window.toast('❌ Impossible d’analyser les films.', true);
+                } finally {
+                    _globalFilmCleanupBusy = false;
+                    if (button) button.disabled = false;
+                }
+            };
+
+            window.confirmGlobalFilmCleanup = async function(modal) {
+                if (modal) modal.remove();
+                if (window.currentRole !== 'fondateur') { window.toast('🚫 Accès réservé au fondateur.', true); return; }
+                if (_globalFilmCleanupBusy || !_globalFilmCleanupPreview) return;
+                if (!window.sb) { window.toast('❌ Connexion à la base de données indisponible.', true); return; }
+
+                var expectedIds = _globalFilmCleanupPreview.map(function(film) { return String(film.id); }).sort();
+                var button = document.getElementById('btn-cleanup-global-films');
+                var logDiv = document.getElementById('global-tmdb-log');
+                _globalFilmCleanupBusy = true;
+                if (button) button.disabled = true;
+                if (logDiv) logDiv.textContent = 'Vérification des films et suppression en cours…';
+                try {
+                    var current = await _getGlobalFilmCleanupMatches();
+                    var currentIds = current.matches.map(function(film) { return String(film.id); }).sort();
+                    if (expectedIds.length !== currentIds.length || expectedIds.some(function(id, index) { return id !== currentIds[index]; })) {
+                        _globalFilmCleanupPreview = null;
+                        if (logDiv) logDiv.textContent = 'Le catalogue a changé depuis l’aperçu. Aucun film n’a été supprimé ; relance le nettoyage pour vérifier la nouvelle liste.';
+                        window.toast('⚠️ Le catalogue a changé. Vérifie un nouvel aperçu.', true);
+                        return;
+                    }
+
+                    var deletedCount = 0;
+                    var errors = [];
+                    for (var start = 0; start < _globalFilmCleanupPreview.length; start += 100) {
+                        var batch = _globalFilmCleanupPreview.slice(start, start + 100);
+                        var ids = batch.map(function(film) { return film.id; });
+                        var response = await window.sb.from('films').delete().in('id', ids).select('id');
+                        if (response.error) {
+                            errors.push(response.error.message || String(response.error));
+                            continue;
+                        }
+                        var deletedIds = new Set((response.data || []).map(function(film) { return String(film.id); }));
+                        deletedCount += deletedIds.size;
+                        if (deletedIds.size !== batch.length) {
+                            errors.push('Une partie du lot n’a pas été supprimée (attendu ' + batch.length + ', supprimé ' + deletedIds.size + ').');
+                        }
+                    }
+
+                    _globalFilmCleanupPreview = null;
+                    try { localStorage.removeItem('pengu_page1_cache_v2'); } catch (cacheError) { console.warn('Impossible de vider le cache du catalogue.', cacheError); }
+                    if (window.applyFilters) window.applyFilters();
+                    if (window.loadFilmsList) window.loadFilmsList();
+                    if (errors.length) {
+                        if (logDiv) logDiv.textContent = 'Suppression partielle : ' + deletedCount + ' film(s) supprimé(s) sur ' + expectedIds.length + '. Erreur(s) : ' + errors.join(' | ');
+                        window.toast('⚠️ Suppression partielle : ' + deletedCount + '/' + expectedIds.length + ' film(s).', true);
+                    } else {
+                        if (logDiv) logDiv.textContent = '✅ Nettoyage terminé : ' + deletedCount + ' film(s) supprimé(s). Le catalogue a été actualisé.';
+                        window.toast('✅ ' + deletedCount + ' film(s) supprimé(s).');
+                    }
+                } catch (error) {
+                    console.error('confirmGlobalFilmCleanup error', error);
+                    _globalFilmCleanupPreview = null;
+                    if (logDiv) logDiv.textContent = 'Erreur pendant le nettoyage : ' + (error.message || error);
+                    window.toast('❌ Le nettoyage a échoué : ' + (error.message || error), true);
+                } finally {
+                    _globalFilmCleanupBusy = false;
+                    if (button) button.disabled = false;
+                }
+            };
+
             window.getSerieEpisodes = async function(serie_id, tmdb_id, nb_saisons) {
                 if (tmdb_id) {
                     var key = 'f34c56c945e5e0de8bd72f85371deea0';
