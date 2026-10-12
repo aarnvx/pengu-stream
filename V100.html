@@ -851,6 +851,42 @@
             box-shadow: 0 4px 14px rgba(23, 165, 137, .3);
         }
 
+        .catalogue-refresh-row {
+            margin: -14px 0 22px;
+        }
+
+        .catalogue-refresh-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border: 1px solid rgba(184, 224, 247, .2);
+            border-radius: 50px;
+            background: linear-gradient(135deg, rgba(23, 165, 137, .24), rgba(123, 104, 238, .2));
+            color: #fff;
+            font-family: 'Nunito', sans-serif;
+            font-size: .86rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .2s, border-color .2s, background .2s;
+            touch-action: manipulation;
+        }
+
+        .catalogue-refresh-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--aurora1);
+            background: linear-gradient(135deg, rgba(23, 165, 137, .38), rgba(123, 104, 238, .32));
+        }
+
+        .catalogue-refresh-btn:focus-visible {
+            outline: 2px solid var(--aurora1);
+            outline-offset: 3px;
+        }
+
+        .catalogue-refresh-btn:active {
+            transform: translateY(0);
+        }
+
         .search-bar {
             position: relative;
             margin-bottom: 22px;
@@ -6568,6 +6604,11 @@
             <button class="cat-btn" data-cat="fantasy" onclick="filterCat('fantasy',this)">⚔️ Fantasy</button>
         </div>
 
+        <div class="catalogue-refresh-row">
+            <button class="catalogue-refresh-btn" type="button" onclick="window.applyFilters()">
+                <span aria-hidden="true">↻</span> Actualiser la liste
+            </button>
+        </div>
 
         <!-- Grille (vide au départ, remplie par JS) -->
         <div class="catalogue-loading-bar" id="catalogue-loading-bar"><div class="catalogue-loading-bar-fill"></div></div>
