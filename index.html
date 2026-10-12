@@ -24,19 +24,99 @@
         #app-loading {
             position: absolute;
             inset: 0;
-            z-index: 1;
-            display: grid;
-            place-items: center;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin: 0;
-            padding: 24px;
-            color: #b8e0f7;
-            background: #051e30;
-            font: 600 1rem/1.5 system-ui, sans-serif;
+            padding: 28px;
+            overflow: hidden;
+            color: #f2f9ff;
+            background:
+                radial-gradient(ellipse at 50% 35%, rgba(23, 165, 137, .2), transparent 38%),
+                radial-gradient(ellipse at 15% 85%, rgba(67, 230, 181, .1), transparent 42%),
+                linear-gradient(145deg, #0a3d62, #051522 72%);
+            font-family: system-ui, sans-serif;
             text-align: center;
+            transition: opacity .45s ease, visibility .45s ease;
         }
 
         #app-loading[hidden] {
-            display: none;
+            display: flex;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #app-loading .loading-card {
+            width: min(100%, 350px);
+            padding: 32px 28px 28px;
+            border: 1px solid rgba(184, 224, 247, .16);
+            border-radius: 28px;
+            background: rgba(5, 30, 48, .42);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .07);
+            backdrop-filter: blur(14px);
+        }
+
+        #app-loading .loading-mascot {
+            display: block;
+            width: 104px;
+            height: 104px;
+            margin: 0 auto 18px;
+            object-fit: contain;
+            filter: drop-shadow(0 12px 24px rgba(67, 230, 181, .28));
+            animation: pengu-loading-float 2.8s ease-in-out infinite;
+        }
+
+        #app-loading .loading-title {
+            margin: 0;
+            font-size: clamp(1.35rem, 5vw, 1.7rem);
+            font-weight: 800;
+            letter-spacing: .01em;
+        }
+
+        #app-loading .loading-caption {
+            margin: 8px 0 22px;
+            color: rgba(232, 244, 253, .72);
+            font-size: .94rem;
+        }
+
+        #app-loading .loading-track {
+            height: 5px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: rgba(184, 224, 247, .14);
+        }
+
+        #app-loading .loading-track::after {
+            display: block;
+            width: 42%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #43e6b5, #b8e0f7);
+            content: "";
+            animation: pengu-loading-progress 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pengu-loading-float {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-9px) rotate(2deg); }
+        }
+
+        @keyframes pengu-loading-progress {
+            from { transform: translateX(-110%); }
+            to { transform: translateX(250%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #app-loading,
+            #app-loading *,
+            #app-loading *::before,
+            #app-loading *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
         }
     </style>
     <script>
@@ -55,7 +135,14 @@
 </head>
 <body>
     <main>
-        <p id="app-loading" role="status" aria-live="polite">Chargement de PenguStream…</p>
+        <div id="app-loading" role="status" aria-live="polite">
+            <div class="loading-card">
+                <img class="loading-mascot" src="Emoji/icon.png" alt="">
+                <p class="loading-title">Prépare ton pop-corn</p>
+                <p class="loading-caption">La banquise PenguStream se réveille…</p>
+                <div class="loading-track" aria-hidden="true"></div>
+            </div>
+        </div>
         <iframe src="V100.html#accueil" title="PenguStream — Accueil" allow="fullscreen; autoplay"
             onload="document.getElementById('app-loading').hidden = true"></iframe>
         <noscript><p><a href="V100.html#accueil">Ouvrir PenguStream</a></p></noscript>
