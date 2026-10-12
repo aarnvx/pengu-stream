@@ -8708,9 +8708,16 @@
                 try {
                     var result = await window.sb.auth.signInWithOAuth({
                         provider: provider,
-                        options: { redirectTo: window.location.origin + '/' }
+                        options: {
+                            redirectTo: window.location.origin + '/',
+                            skipBrowserRedirect: true
+                        }
                     });
                     if (result.error) throw result.error;
+                    if (!result.data || !result.data.url) {
+                        throw new Error('URL de connexion OAuth manquante.');
+                    }
+                    (window.top || window).location.assign(result.data.url);
                 } catch (error) {
                     console.error('OAuth sign-in error (' + provider + ')', error);
                     window.toast('❌ Connexion ' + (provider === 'google' ? 'Google' : 'Discord')
