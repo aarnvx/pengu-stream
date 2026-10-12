@@ -303,8 +303,41 @@
                 <div class="loading-track" aria-hidden="true"></div>
             </div>
         </div>
-        <iframe src="V100.html#accueil" title="PenguStream — Accueil" allow="fullscreen; autoplay"
-            onload="document.getElementById('app-loading').hidden = true"></iframe>
+        <script>
+            (function () {
+                var main = document.querySelector('main');
+                var loading = document.getElementById('app-loading');
+                var callbackKeys = ['code', 'error', 'error_code', 'error_description', 'error_uri', 'state'];
+                var callbackParams = new URLSearchParams();
+                var cleanParams = new URLSearchParams(window.location.search);
+                var hasAuthCallback = false;
+
+                callbackKeys.forEach(function (key) {
+                    if (!cleanParams.has(key)) return;
+                    callbackParams.set(key, cleanParams.get(key));
+                    cleanParams.delete(key);
+                    if (key === 'code' || key === 'error') hasAuthCallback = true;
+                });
+
+                var appUrl = new URL('V100.html', window.location.href);
+                appUrl.hash = 'accueil';
+                if (hasAuthCallback) {
+                    appUrl.search = callbackParams.toString();
+                    var remainingQuery = cleanParams.toString();
+                    window.history.replaceState(window.history.state, '', window.location.pathname
+                        + (remainingQuery ? '?' + remainingQuery : '') + window.location.hash);
+                }
+
+                var frame = document.createElement('iframe');
+                frame.title = 'PenguStream - Accueil';
+                frame.allow = 'fullscreen; autoplay';
+                frame.addEventListener('load', function () {
+                    if (frame.contentWindow.location.href !== 'about:blank') loading.hidden = true;
+                });
+                frame.src = appUrl.href;
+                main.insertBefore(frame, loading.nextSibling);
+            })();
+        </script>
         <noscript><p><a href="V100.html#accueil">Ouvrir PenguStream</a></p></noscript>
     </main>
 </body>

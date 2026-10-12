@@ -8304,7 +8304,7 @@
                 <div class="divider">ou continuer avec</div>
                 <div class="social-btns">
                     <button class="btn-social"
-                        onclick="sb.auth.signInWithOAuth({provider:'discord', options:{redirectTo:window.location.origin + '/'}})">
+                        onclick="signInWithProvider('discord')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 127.14 96.36"
                             style="flex-shrink:0;vertical-align:middle;margin-right:6px;">
                             <path fill="#fff"
@@ -8313,7 +8313,7 @@
                         Discord
                     </button>
                     <button class="btn-social"
-                        onclick="sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:window.location.origin + '/'}})">
+                        onclick="signInWithProvider('google')">
                         <svg width="18" height="18" viewBox="0 0 24 24"
                             style="margin-right:6px;vertical-align:middle;flex-shrink:0;">
                             <path fill="#4285F4"
@@ -8356,7 +8356,7 @@
                 <div class="divider">ou continuer avec</div>
                 <div class="social-btns">
                     <button class="btn-social"
-                        onclick="sb.auth.signInWithOAuth({provider:'discord', options:{redirectTo:window.location.origin + '/'}})">
+                        onclick="signInWithProvider('discord')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 127.14 96.36"
                             style="flex-shrink:0;vertical-align:middle;margin-right:6px;">
                             <path fill="#fff"
@@ -8365,7 +8365,7 @@
                         Discord
                     </button>
                     <button class="btn-social"
-                        onclick="sb.auth.signInWithOAuth({provider:'google', options:{redirectTo:window.location.origin + '/'}})">
+                        onclick="signInWithProvider('google')">
                         <svg width="18" height="18" viewBox="0 0 24 24"
                             style="margin-right:6px;vertical-align:middle;flex-shrink:0;">
                             <path fill="#4285F4"
@@ -8699,6 +8699,23 @@
             window.switchView = function (v) {
                 document.getElementById('registerView').style.display = v === 'register' ? 'block' : 'none';
                 document.getElementById('loginView').style.display = v === 'login' ? 'block' : 'none';
+            };
+            window.signInWithProvider = async function (provider) {
+                if (provider !== 'discord' && provider !== 'google') {
+                    window.toast('❌ Fournisseur de connexion non pris en charge.', true);
+                    return;
+                }
+                try {
+                    var result = await window.sb.auth.signInWithOAuth({
+                        provider: provider,
+                        options: { redirectTo: window.location.origin + '/' }
+                    });
+                    if (result.error) throw result.error;
+                } catch (error) {
+                    console.error('OAuth sign-in error (' + provider + ')', error);
+                    window.toast('❌ Connexion ' + (provider === 'google' ? 'Google' : 'Discord')
+                        + ' impossible : ' + (error.message || 'erreur inconnue'), true);
+                }
             };
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') { window.closeModal(); closeFounderPanel(); window.closePlayer(); window.closeMenu(); }
