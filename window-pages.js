@@ -10,10 +10,4 @@
         }
     });
 
-    window.addEventListener('pageshow', function (event) {
-        var navigation = performance.getEntriesByType('navigation')[0];
-        if (event.persisted || (navigation && navigation.type === 'back_forward')) {
-            window.location.replace('index.html');
-        }
-    });
 })();
