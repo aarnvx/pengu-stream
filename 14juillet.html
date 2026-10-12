@@ -7138,8 +7138,8 @@
             <span id="player-access-label" style="color:rgba(255,255,255,.5);font-size:.85rem;"></span>
             <select id="player-source-selector" onchange="changePlayerSource()" style="margin-left: auto; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px 10px; font-family: 'Nunito', sans-serif; font-size: 0.9rem; display: none; outline: none; cursor: pointer;">
                 <option value="wavewatch" style="color: #00cec9; background: #1a1a2e; font-weight: bold;">Lecteur 1 (Wavewatch)</option>
-                <option value="peachify" style="color: #e84393; background: #1a1a2e; font-weight: bold;">Lecteur 2 (Peachify)</option>
-                <option value="vidsrc" style="color: #fdcb6e; background: #1a1a2e; font-weight: bold;">Lecteur 3 (Multi-Langues)</option>
+                <option value="heiwastream" style="color: #e84393; background: #1a1a2e; font-weight: bold;">Lecteur 2 (HeiwaStream — VF)</option>
+                <option value="cinesrc" style="color: #fdcb6e; background: #1a1a2e; font-weight: bold;">Lecteur 3 (CineSRC — multi-langues)</option>
             </select>
         </div>
         <!-- Zone épisodes série -->
@@ -7793,12 +7793,12 @@
                 var movieMatch = url.match(/type=movie&id=([0-9]+)/);
                 var tvMatch = url.match(/type=tv&id=([0-9]+)&s=([0-9]+)&e=([0-9]+)/);
 
-                if (source === 'peachify') {
-                    if (movieMatch) return 'https://peachify.top/embed/movie/' + movieMatch[1] + '?dub=fr';
-                    if (tvMatch) return 'https://peachify.top/embed/tv/' + tvMatch[1] + '/' + tvMatch[2] + '/' + tvMatch[3] + '?dub=fr';
-                } else if (source === 'vidsrc') {
-                    if (movieMatch) return 'https://vidsrc.to/embed/movie/' + movieMatch[1];
-                    if (tvMatch) return 'https://vidsrc.to/embed/tv/' + tvMatch[1] + '/' + tvMatch[2] + '/' + tvMatch[3];
+                if (source === 'heiwastream') {
+                    if (movieMatch) return 'https://heiwastream.fr/embed/movie/' + movieMatch[1] + '?lang=vf&autoplay=1';
+                    if (tvMatch) return 'https://heiwastream.fr/embed/tv/' + tvMatch[1] + '/' + tvMatch[2] + '/' + tvMatch[3] + '?lang=vf&autoplay=1';
+                } else if (source === 'cinesrc') {
+                    if (movieMatch) return 'https://cinesrc.st/embed/movie/' + movieMatch[1];
+                    if (tvMatch) return 'https://cinesrc.st/embed/tv/' + tvMatch[1] + '/' + tvMatch[2] + '/' + tvMatch[3];
                 }
                 
                 return url; // fallback (wavewatch)
@@ -12865,7 +12865,6 @@ body.theme-feu_artifice .aurora-bg .a3{background:#f1c40f;}
 </body>
 
 </html>
-
 
 
 
