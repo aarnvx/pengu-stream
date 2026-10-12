@@ -4,10 +4,41 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#051e30">
+    <meta name="description" content="Regardez des films, séries et animés en streaming sur PenguStream. Découvrez un catalogue glacial, vos favoris et les nouveautés.">
+    <meta property="og:title" content="PenguStream — Le streaming glacial">
+    <meta property="og:description" content="Films, séries et animés en streaming sur PenguStream.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pengustream.com/">
     <link rel="icon" type="image/png" href="Emoji/icon.png">
     <link rel="apple-touch-icon" href="Emoji/icon.png">
+    <link rel="canonical" href="https://pengustream.com/">
     <title>PenguStream — Accueil</title>
     <link rel="stylesheet" href="window-pages.css">
+    <style>
+        main {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #app-loading {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            margin: 0;
+            padding: 24px;
+            color: #b8e0f7;
+            background: #051e30;
+            font: 600 1rem/1.5 system-ui, sans-serif;
+            text-align: center;
+        }
+
+        #app-loading[hidden] {
+            display: none;
+        }
+    </style>
     <script>
         (function () {
             function setTheme(theme) {
@@ -23,7 +54,11 @@
     </script>
 </head>
 <body>
-    <iframe src="V100.html#accueil" title="Accueil PenguStream" allow="fullscreen; autoplay"></iframe>
-    <noscript><p><a href="V100.html#accueil">Ouvrir PenguStream</a></p></noscript>
+    <main>
+        <p id="app-loading" role="status" aria-live="polite">Chargement de PenguStream…</p>
+        <iframe src="V100.html#accueil" title="PenguStream — Accueil" allow="fullscreen; autoplay"
+            onload="document.getElementById('app-loading').hidden = true"></iframe>
+        <noscript><p><a href="V100.html#accueil">Ouvrir PenguStream</a></p></noscript>
+    </main>
 </body>
 </html>

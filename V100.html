@@ -18,7 +18,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800&display=swap"
-        rel="stylesheet">
+        rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800&display=swap"
+            rel="stylesheet">
+    </noscript>
     <style>
         :root {
             --glacier: #b8e0f7;
@@ -6348,11 +6352,25 @@
                 }
             }
 
+            function optimizeImageUrl(url) {
+                if (typeof url !== 'string') return url;
+                return url
+                    .replace('https://image.tmdb.org/t/p/original/', 'https://image.tmdb.org/t/p/w1280/')
+                    .replace('https://image.tmdb.org/t/p/w500/', 'https://image.tmdb.org/t/p/w342/');
+            }
+
+            window.optimizeImageUrl = optimizeImageUrl;
+
             function optimizeImages(root) {
                 if (!root) return;
                 var images = root.matches && root.matches('img') ? [root] : [];
                 if (root.querySelectorAll) images = images.concat(Array.prototype.slice.call(root.querySelectorAll('img')));
                 images.forEach(function (image) {
+                    var source = image.getAttribute('src');
+                    if (source) {
+                        var optimizedSource = optimizeImageUrl(source);
+                        if (optimizedSource !== source) image.setAttribute('src', optimizedSource);
+                    }
                     if (image.id === 'spotlight-poster-side') {
                         image.loading = 'eager';
                         image.decoding = 'async';
@@ -6421,6 +6439,7 @@
         <button id="nav-burger" onclick="toggleMenu()" aria-label="Menu">☰</button>
     </nav>
 
+    <main id="main-content">
     <!-- HERO -->
     <section class="hero">
         <div style="font-size:clamp(7rem,20vw,11rem);animation:float 5s ease-in-out infinite;filter:drop-shadow(0 16px 50px rgba(67,230,181,.5));margin-bottom:4px;line-height:1;"
@@ -6595,6 +6614,8 @@
             </div>
         </div>
     </section>
+
+    </main>
 
     <div class="footer-penguins">
         <svg class="fp-penguin" style="--w:2.2s" viewBox="0 0 60 80" fill="none">
@@ -7334,8 +7355,8 @@
 
                             var updates = {
                                 description: details.overview || '',
-                                thumb_url: details.poster_path ? 'https://image.tmdb.org/t/p/w500' + details.poster_path : '',
-                                banner_url: details.backdrop_path ? 'https://image.tmdb.org/t/p/original' + details.backdrop_path : ''
+                                thumb_url: details.poster_path ? 'https://image.tmdb.org/t/p/w342' + details.poster_path : '',
+                                banner_url: details.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + details.backdrop_path : ''
                             };
 
                             if (isFilm) {
@@ -7787,8 +7808,8 @@
                             color1: '#1a1a2e',
                             color2: '#7b68ee',
                             description: details.overview || '',
-                            thumb_url: details.poster_path ? 'https://image.tmdb.org/t/p/w500' + details.poster_path : null,
-                            banner_url: details.backdrop_path ? 'https://image.tmdb.org/t/p/original' + details.backdrop_path : null,
+                            thumb_url: details.poster_path ? 'https://image.tmdb.org/t/p/w342' + details.poster_path : null,
+                            banner_url: details.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + details.backdrop_path : null,
                             access: 'all',
                             tmdb_id: String(item.id),
                             created_by: window.currentUser ? window.currentUser.id : null,
@@ -12349,8 +12370,8 @@
                                                 var newF0 = {
                                                     title: p.title || ('Film ' + (p.id || '')),
                                                     description: p.overview || null,
-                                                    thumb_url: p.poster_path ? 'https://image.tmdb.org/t/p/w500' + p.poster_path : null,
-                                                    banner_url: p.backdrop_path ? 'https://image.tmdb.org/t/p/original' + p.backdrop_path : null,
+                                                    thumb_url: p.poster_path ? 'https://image.tmdb.org/t/p/w342' + p.poster_path : null,
+                                                    banner_url: p.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + p.backdrop_path : null,
                                                     video_url: '<iframe src="' + window.buildZenixEmbedUrl('movie', p.id) + '" frameborder="0" allowfullscreen allow="autoplay; fullscreen; encrypted-media"></iframe>',
                                                     emoji: '🎬', access: 'all'
                                                 };
@@ -12413,8 +12434,8 @@
                                                 var newFilm = {
                                                     title: p.title || ('Film ' + (p.id || '')),
                                                     description: p.overview || null,
-                                                    thumb_url: p.poster_path ? 'https://image.tmdb.org/t/p/w500' + p.poster_path : null,
-                                                    banner_url: p.backdrop_path ? 'https://image.tmdb.org/t/p/original' + p.backdrop_path : null,
+                                                    thumb_url: p.poster_path ? 'https://image.tmdb.org/t/p/w342' + p.poster_path : null,
+                                                    banner_url: p.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + p.backdrop_path : null,
                                                     video_url: '<iframe src="' + window.buildZenixEmbedUrl('movie', p.id) + '" frameborder="0" allowfullscreen allow="autoplay; fullscreen; encrypted-media"></iframe>',
                                                     emoji: '🎬',
                                                     access: 'all'
@@ -12455,8 +12476,8 @@
                                                 var newF = {
                                                     title: c.title || ('Film ' + (c.id || '')),
                                                     description: c.overview || null,
-                                                    thumb_url: c.poster_path ? 'https://image.tmdb.org/t/p/w500' + c.poster_path : null,
-                                                    banner_url: c.backdrop_path ? 'https://image.tmdb.org/t/p/original' + c.backdrop_path : null,
+                                                    thumb_url: c.poster_path ? 'https://image.tmdb.org/t/p/w342' + c.poster_path : null,
+                                                    banner_url: c.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + c.backdrop_path : null,
                                                     video_url: '<iframe src="' + window.buildZenixEmbedUrl('movie', c.id) + '" frameborder="0" allowfullscreen allow="autoplay; fullscreen; encrypted-media"></iframe>',
                                                     emoji: '🎬',
                                                     access: 'all'
@@ -12565,7 +12586,7 @@
                         var container = document.getElementById('sagas-grid-container');
                         container.innerHTML = r.data.map(function (saga, idx) {
                             var bannerUrl = saga.banner_url || '';
-                            var bgStyle = bannerUrl ? 'background-image: url(\'' + bannerUrl + '\'); background-size: cover; background-position: center;' : '';
+                            var bgStyle = bannerUrl ? 'background-image: url(\'' + window.optimizeImageUrl(bannerUrl) + '\'); background-size: cover; background-position: center;' : '';
                             return '<div class="saga-card-wrapper" data-saga-id="saga-' + idx + '">'
                                 + '<div class="saga-card-item" id="saga-' + idx + '" onclick="window.openSagaDetail(\'' + saga.id + '\')" style="' + bgStyle + '">'
                                 + '<div class="saga-card-overlay"></div>'
@@ -13068,7 +13089,7 @@
                 var playBtn = document.getElementById('spotlight-play-btn');
                 var moreBtn = document.getElementById('spotlight-more-btn');
 
-                var bgUrl = data.banner || data.thumb;
+                var bgUrl = window.optimizeImageUrl(data.banner || data.thumb);
                 if (bg) bg.style.backgroundImage = bgUrl ? 'url("' + bgUrl + '")' : 'none';
                 if (poster && posterWrapper && data.thumb) { poster.src = data.thumb; posterWrapper.style.display = ''; }
                 else if (posterWrapper) { posterWrapper.style.display = 'none'; }
@@ -13114,7 +13135,7 @@
                 if (!prevEl || !imgEl) return;
                 if (!data || !data.id) { prevEl.style.display = 'none'; return; }
                 prevEl.style.display = 'block';
-                var bgUrl = data.banner || data.thumb;
+                var bgUrl = window.optimizeImageUrl(data.banner || data.thumb);
                 imgEl.innerHTML = bgUrl
                     ? '<img src="' + bgUrl + '" alt="' + data.title + '" style="width:100%;height:100%;object-fit:cover;object-position:center 20%;">'
                     : '<span style="color:rgba(255,255,255,.4);">' + data.title + '</span>';
@@ -14035,8 +14056,8 @@
                 var prefix = type === 'film' ? 'film' : (type === 'serie' ? 'serie' : 'saga');
                 var title = details.title || details.name;
                 var overview = details.overview || '';
-                var thumb = details.poster_path ? 'https://image.tmdb.org/t/p/w500' + details.poster_path : '';
-                var banner = details.backdrop_path ? 'https://image.tmdb.org/t/p/original' + details.backdrop_path : '';
+                var thumb = details.poster_path ? 'https://image.tmdb.org/t/p/w342' + details.poster_path : '';
+                var banner = details.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + details.backdrop_path : '';
                 
                 var titleField = document.getElementById(prefix + '-title');
                 if (titleField) titleField.value = title;
