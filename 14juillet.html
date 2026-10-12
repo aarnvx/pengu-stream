@@ -3185,7 +3185,7 @@
             border: 1px solid rgba(255, 255, 255, .12);
         }
 
-        /* ══ SAGA — MODAL DÉTAIL ══ */
+        /* ══ SAGA - MODAL DÉTAIL ══ */
         #saga-detail-modal {
             position: fixed;
             inset: 0;
@@ -3534,7 +3534,7 @@
             }
         }
 
-        /* ══ SAGA — PANEL FONDATEUR ══ */
+        /* ══ SAGA - PANEL FONDATEUR ══ */
         .saga-panel-list {
             display: flex;
             flex-direction: column;
@@ -4176,7 +4176,7 @@
             background: rgba(231, 76, 60, .25);
         }
 
-        /* ══ MODAL FICHE FILM/SÉRIE — REDESIGN NETFLIX ══ */
+        /* ══ MODAL FICHE FILM/SÉRIE - REDESIGN NETFLIX ══ */
         #detail-modal {
             position: fixed;
             inset: 0;
@@ -4272,7 +4272,7 @@
             pointer-events: none;
         }
 
-        /* Poster flottant — dans .detail-body, remonte pour chevaucher la bannière */
+        /* Poster flottant - dans .detail-body, remonte pour chevaucher la bannière */
         .detail-poster-wrap {
             position: absolute;
             top: -62px;
@@ -5891,7 +5891,7 @@
         <div style="font-size:clamp(7rem,20vw,11rem);animation:float 5s ease-in-out infinite;filter:drop-shadow(0 16px 50px rgba(67,230,181,.5));margin-bottom:4px;line-height:1;"
             aria-label="Pingouin cartoon">🐧</div>
         <h1 class="hero-title">Le Streaming<br>des Grands Froids 🧊</h1>
-        <p class="hero-sub">Plongez dans un océan de films, séries et animés avec PenguStream — frais, rapide et sans
+        <p class="hero-sub">Plongez dans un océan de films, séries et animés avec PenguStream - frais, rapide et sans
             publicités.</p>
         <div class="hero-btns">
             <button class="btn-primary" onclick="openModal('register')"
@@ -6210,7 +6210,7 @@
     })();
     </script>
 
-    <!-- SPOTLIGHT — FILM DU MOMENT -->
+    <!-- SPOTLIGHT - FILM DU MOMENT -->
     <div id="spotlight-section">
         <div class="spotlight-banner">
             <div class="spotlight-bg" id="spotlight-bg"></div>
@@ -6266,7 +6266,7 @@
     <!-- CATALOGUE -->
     <section class="catalogue reveal" id="catalogue">
         <h2 class="section-title">🎬 Catalogue Glacial</h2>
-        <p class="section-sub">Films, séries et bien plus — sélectionnés par nos pingouins experts</p>
+        <p class="section-sub">Films, séries et bien plus - sélectionnés par nos pingouins experts</p>
 
         <!-- Barre de recherche -->
         <div class="search-bar">
@@ -6329,7 +6329,7 @@
             <div class="feat-card">
                 <div class="feat-icon">📱</div>
                 <div class="feat-title">Tous vos Appareils</div>
-                <div class="feat-desc">TV, ordi, téléphone, tablette — regardez où vous voulez.</div>
+                <div class="feat-desc">TV, ordi, téléphone, tablette - regardez où vous voulez.</div>
             </div>
             <div class="feat-card">
                 <div class="feat-icon">🚫</div>
@@ -6339,7 +6339,7 @@
             <div class="feat-card">
                 <div class="feat-icon">📺</div>
                 <div class="feat-title">Séries Complètes</div>
-                <div class="feat-desc">Saisons, épisodes, descriptions — tout est organisé pour vous.</div>
+                <div class="feat-desc">Saisons, épisodes, descriptions - tout est organisé pour vous.</div>
             </div>
             <div class="feat-card">
                 <div class="feat-icon">🤝</div>
@@ -7138,8 +7138,8 @@
             <span id="player-access-label" style="color:rgba(255,255,255,.5);font-size:.85rem;"></span>
             <select id="player-source-selector" onchange="changePlayerSource()" style="margin-left: auto; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 5px 10px; font-family: 'Nunito', sans-serif; font-size: 0.9rem; display: none; outline: none; cursor: pointer;">
                 <option value="wavewatch" style="color: #00cec9; background: #1a1a2e; font-weight: bold;">Lecteur 1 (Wavewatch)</option>
-                <option value="heiwastream" style="color: #e84393; background: #1a1a2e; font-weight: bold;">Lecteur 2 (HeiwaStream — VF)</option>
-                <option value="cinesrc" style="color: #fdcb6e; background: #1a1a2e; font-weight: bold;">Lecteur 3 (CineSRC — multi-langues)</option>
+                <option value="heiwastream" style="color: #e84393; background: #1a1a2e; font-weight: bold;">Lecteur 2 (HeiwaStream - VF)</option>
+                <option value="cinesrc" style="color: #fdcb6e; background: #1a1a2e; font-weight: bold;">Lecteur 3 (CineSRC - multi-langues)</option>
             </select>
         </div>
         <!-- Zone épisodes série -->
@@ -7619,7 +7619,7 @@
             window.handleLogout = function () { window.logoutCurrentSession('global', '👋 À bientôt dans la colonie !'); };
 
             /* ═══════════════════════════════════
-               CATALOGUE — FILTRES
+               CATALOGUE - FILTRES
             ═══════════════════════════════════ */
             window.filterType = function (type, btn) {
                 document.querySelectorAll('.type-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -7663,7 +7663,7 @@
             }
 
             /* ═══════════════════════════════════
-               CATALOGUE — RENDU CARTES
+               CATALOGUE - RENDU CARTES
             ═══════════════════════════════════ */
             function badgeHtml(badge) {
                 if (!badge || badge === 'NULL') return '';
@@ -7886,7 +7886,7 @@
 
                             var num = serie.startEp.numero;
                             var epTitle = serie.startEp.title || ('Épisode ' + num);
-                            document.getElementById('player-title').textContent = '▶ Épisode ' + num + ' — ' + epTitle;
+                            document.getElementById('player-title').textContent = '▶ Épisode ' + num + ' - ' + epTitle;
                             var processed = finalUrl.startsWith('<')
                                 ? finalUrl.replace(/<iframe/gi, '<iframe style="width:100%;height:min(56.25vw,562px);border:none;border-radius:14px;"')
                                 : '<iframe src="' + finalUrl + '" style="width:100%;height:min(56.25vw,562px);border:none;border-radius:14px;" allowfullscreen></iframe>';
@@ -7995,7 +7995,7 @@
                 document.querySelectorAll('.ep-card').forEach(function (c) { c.classList.remove('active-ep'); });
                 var card = el ? el.closest('.ep-card') : null;
                 if (card) card.classList.add('active-ep');
-                document.getElementById('player-title').textContent = '▶ Épisode ' + num + ' — ' + title;
+                document.getElementById('player-title').textContent = '▶ Épisode ' + num + ' - ' + title;
                 
                 var finalUrl = url;
                 if (finalUrl.startsWith('<')) {
@@ -8148,7 +8148,7 @@
                 if ((ROLES[currentRole] || ROLES.user).level < 3) { toast('🚫 Accès refusé.', true); return; }
                 document.getElementById('founder-panel').classList.add('open');
                 document.body.style.overflow = 'hidden';
-                document.getElementById('fp-role-label').textContent = '— ' + (ROLES[currentRole] || ROLES.user).label;
+                document.getElementById('fp-role-label').textContent = '- ' + (ROLES[currentRole] || ROLES.user).label;
                 
                 var majTabBtn = document.getElementById('tab-majtmdb-btn');
                 if (majTabBtn) {
@@ -8176,7 +8176,7 @@
             };
 
             /* ═══════════════════════════════════
-               PANNEAU — UTILISATEURS
+               PANNEAU - UTILISATEURS
             ═══════════════════════════════════ */
             window.searchUsers = function (all) {
                 var q = all ? '' : document.getElementById('fp-search').value.trim();
@@ -8198,10 +8198,10 @@
                         var canEdit = currentRole === 'fondateur' || (currentRole === 'admin' && ri.level < 3);
                         var opts = Object.keys(ROLES).map(function (k) { return '<option value="' + k + '"' + (k === r ? ' selected' : '') + '>' + ROLES[k].label + '</option>'; }).join('');
                         return '<tr>' +
-                            '<td><strong>' + (u.username || '—') + '</strong></td>' +
-                            '<td style="color:rgba(255,255,255,.6);font-size:.81rem">' + (u.email || '—') + '</td>' +
+                            '<td><strong>' + (u.username || '-') + '</strong></td>' +
+                            '<td style="color:rgba(255,255,255,.6);font-size:.81rem">' + (u.email || '-') + '</td>' +
                             '<td><span class="role-badge ' + ri.css + '">' + ri.label + '</span></td>' +
-                            '<td>' + (canEdit ? '<select class="role-select" id="role-' + u.id + '">' + opts + '</select>' : '<span style="color:rgba(255,255,255,.3);font-size:.79rem">—</span>') + '</td>' +
+                            '<td>' + (canEdit ? '<select class="role-select" id="role-' + u.id + '">' + opts + '</select>' : '<span style="color:rgba(255,255,255,.3);font-size:.79rem">-</span>') + '</td>' +
                             '<td>' + (canEdit ? '<button class="btn-save-role" onclick="saveRole(\'' + u.id + '\',\'' + (u.username || u.email) + '\')">Sauvegarder</button>' : '') + '</td>' +
                             '</tr>';
                     }).join('');
@@ -8230,7 +8230,7 @@
             };
 
             /* ═══════════════════════════════════
-               PANNEAU — FILMS
+               PANNEAU - FILMS
             ═══════════════════════════════════ */
             var _filmsData = [];
             function loadFilmsList() {
@@ -8262,7 +8262,7 @@
                 } else {
                     map[key] = true;
                     btn.classList.add('locked');
-                    btn.title = '🔒 Verrouillé — MAJ TMDB ignorées. Cliquer pour déverrouiller';
+                    btn.title = '🔒 Verrouillé - MAJ TMDB ignorées. Cliquer pour déverrouiller';
                     btn.textContent = '🔒';
                     window.toast('🔒 "' + btn.dataset.title + '" verrouillé. Les MAJ globales l\'ignoreront.');
                 }
@@ -8281,7 +8281,7 @@
                     var isLocked = !!lockedMap['film_' + f.id];
                     var lockCls = isLocked ? ' locked' : '';
                     var lockIcon = isLocked ? '🔒' : '🔓';
-                    var lockTitle = isLocked ? 'Verrouillé — MAJ TMDB ignorées. Cliquer pour déverrouiller' : 'Cliquer pour verrouiller (protéger des MAJ TMDB globales)';
+                    var lockTitle = isLocked ? 'Verrouillé - MAJ TMDB ignorées. Cliquer pour déverrouiller' : 'Cliquer pour verrouiller (protéger des MAJ TMDB globales)';
                     var safeTitle = (f.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     return '<div class="content-item">' + thumb +
                         '<div class="content-item-info">' +
@@ -8321,7 +8321,7 @@
                 sb.from('films').select('*').eq('id', id).single().then(function (res) {
                     if (res.error || !res.data) { toast('❌ Film introuvable.', true); return; }
                     var f = res.data;
-                    document.getElementById('film-form-title').textContent = '✏️ Modifier — ' + f.title;
+                    document.getElementById('film-form-title').textContent = '✏️ Modifier - ' + f.title;
                     document.getElementById('film-edit-id').value = f.id;
                     document.getElementById('film-title').value = f.title || '';
                     document.getElementById('film-cat').value = f.cat || 'anime';
@@ -8416,7 +8416,7 @@
             };
 
             /* ═══════════════════════════════════
-               PANNEAU — SÉRIES
+               PANNEAU - SÉRIES
             ═══════════════════════════════════ */
             var _seriesData = [];
             function loadSeriesList() {
@@ -8442,7 +8442,7 @@
                     var isLocked = !!lockedMap['serie_' + s.id];
                     var lockCls = isLocked ? ' locked' : '';
                     var lockIcon = isLocked ? '🔒' : '🔓';
-                    var lockTitle = isLocked ? 'Verrouillée — MAJ TMDB ignorées. Cliquer pour déverrouiller' : 'Cliquer pour verrouiller (protéger des MAJ TMDB globales)';
+                    var lockTitle = isLocked ? 'Verrouillée - MAJ TMDB ignorées. Cliquer pour déverrouiller' : 'Cliquer pour verrouiller (protéger des MAJ TMDB globales)';
                     var safeTitle = (s.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     return '<div class="content-item">' + thumb +
                         '<div class="content-item-info">' +
@@ -8486,7 +8486,7 @@
                 sb.from('series').select('*').eq('id', id).single().then(function (res) {
                     if (res.error || !res.data) { toast('❌ Série introuvable.', true); return; }
                     var s = res.data;
-                    document.getElementById('serie-form-title').textContent = '✏️ Modifier — ' + s.title;
+                    document.getElementById('serie-form-title').textContent = '✏️ Modifier - ' + s.title;
                     document.getElementById('serie-edit-id').value = s.id;
                     document.getElementById('serie-title').value = s.title || '';
                     document.getElementById('serie-cat').value = s.cat || 'anime';
@@ -8739,10 +8739,10 @@
             };
 
             /* ═══════════════════════════════════
-               PANNEAU — CATÉGORIES
+               PANNEAU - CATÉGORIES
             ═══════════════════════════════════ */
             /* ═══════════════════════════════════
-               PANNEAU — CATÉGORIES (Supabase + éditables)
+               PANNEAU - CATÉGORIES (Supabase + éditables)
             ═══════════════════════════════════ */
             function renderCatPanel() {
                 var list = document.getElementById('cat-list-panel'); if (!list) return;
@@ -9263,7 +9263,7 @@
                         <li>Qualité Ultra HD</li>
                         <li>Badge 👑 sur ton profil</li>
                     </ul>
-                    <span class="pm-cta pm-cta-monthly">Commencer — 5€/mois</span>
+                    <span class="pm-cta pm-cta-monthly">Commencer - 5€/mois</span>
                 </a>
 
                 <!-- 1 AN -->
@@ -9273,14 +9273,14 @@
                     <span class="pm-plan-icon">⭐</span>
                     <div class="pm-plan-name">VIP Annuel</div>
                     <div class="pm-plan-price">35€ <span>/ an</span></div>
-                    <div class="pm-plan-desc">Soit 2,92€/mois — la meilleure offre</div>
+                    <div class="pm-plan-desc">Soit 2,92€/mois - la meilleure offre</div>
                     <ul class="pm-plan-perks">
                         <li>Tout du VIP Mensuel</li>
                         <li>Économise 25€ vs mensuel</li>
                         <li>Priorité sur les nouveautés</li>
                         <li>Badge ⭐ spécial annuel</li>
                     </ul>
-                    <span class="pm-cta pm-cta-yearly">Meilleure offre — 35€/an</span>
+                    <span class="pm-cta pm-cta-yearly">Meilleure offre - 35€/an</span>
                 </a>
             </div>
 
@@ -9339,7 +9339,7 @@
                 localStorage.setItem('pengu_pending_vip', JSON.stringify({ uid: uid, plan: plan, ts: Date.now() }));
                 window.open(base, '_blank');
                 // Afficher un message d'attente
-                window.toast('💳 Stripe ouvert — après paiement, reviens ici et clique sur "J\'ai payé"');
+                window.toast('💳 Stripe ouvert - après paiement, reviens ici et clique sur "J\'ai payé"');
                 setTimeout(showPaidButton, 2000);
             };
 
@@ -9349,7 +9349,7 @@
                 var btn = document.createElement('div');
                 btn.id = 'pm-confirm-paid';
                 btn.style.cssText = 'padding:0 28px 20px;position:relative;z-index:1;text-align:center;';
-                btn.innerHTML = '<button onclick="confirmVipActivation()" style="background:linear-gradient(135deg,var(--gold),#e67e22);border:none;color:#000;padding:13px 30px;border-radius:50px;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:.95rem;cursor:pointer;width:100%;max-width:300px;">✅ J\'ai payé — Activer mon VIP</button><p style="color:rgba(255,255,255,.35);font-size:.74rem;margin-top:8px;">Clique après avoir complété le paiement Stripe</p>';
+                btn.innerHTML = '<button onclick="confirmVipActivation()" style="background:linear-gradient(135deg,var(--gold),#e67e22);border:none;color:#000;padding:13px 30px;border-radius:50px;font-family:\'Nunito\',sans-serif;font-weight:900;font-size:.95rem;cursor:pointer;width:100%;max-width:300px;">✅ J\'ai payé - Activer mon VIP</button><p style="color:rgba(255,255,255,.35);font-size:.74rem;margin-top:8px;">Clique après avoir complété le paiement Stripe</p>';
                 plans.after(btn);
             }
 
@@ -9368,7 +9368,7 @@
                 // Vérifier le paiement réel via la fonction Stripe sécurisée
                 window.sb.rpc('check_vip_status', { user_id: uid }).then(function(vipCheck) {
                     if (vipCheck.error || !vipCheck.data) {
-                        btn.disabled = false; btn.textContent = '✅ J\'ai payé — Activer mon VIP';
+                        btn.disabled = false; btn.textContent = '✅ J\'ai payé - Activer mon VIP';
                         window.toast('❌ Paiement non détecté sur Stripe. Attends quelques secondes et réessaie, ou contacte le support.', true);
                         return;
                     }
@@ -9395,7 +9395,7 @@
                             vip_plan: plan
                         }).eq('id', uid).then(function (res) {
                             if (res.error) {
-                                btn.disabled = false; btn.textContent = '✅ J\'ai payé — Activer mon VIP';
+                                btn.disabled = false; btn.textContent = '✅ J\'ai payé - Activer mon VIP';
                                 window.toast('❌ Erreur activation : ' + res.error.message, true);
                                 return;
                             }
@@ -9454,7 +9454,7 @@
                                 var newExpiry = new Date();
                                 newExpiry.setMonth(newExpiry.getMonth() + 1);
                                 window.sb.from('profiles').update({ vip_expires_at: newExpiry.toISOString() }).eq('id', uid).then(function () {
-                                    window.toast('👑 Abonnement Stripe actif — VIP renouvelé automatiquement !');
+                                    window.toast('👑 Abonnement Stripe actif - VIP renouvelé automatiquement !');
                                 });
                             }
                         });
@@ -9677,7 +9677,7 @@
 
         window.deleteAccount = function () {
             if (!confirm('⚠️ Supprimer définitivement ton compte ? Cette action est irréversible !')) return;
-            if (!confirm('Dernière confirmation — es-tu sûr(e) ?')) return;
+            if (!confirm('Dernière confirmation - es-tu sûr(e) ?')) return;
             window.sb.from('profiles').delete().eq('id', window.currentUser.id).then(function () {
                 window.sb.auth.signOut().then(function () {
                     window.closeAccountModal();
@@ -9888,7 +9888,7 @@
             bugBtn.innerHTML = '🐛&nbsp;Signaler un bug';
             bugBtn.onclick = function () {
                 window._bugReportItem = { title: item.title, type: item.type, id: item.id };
-                document.getElementById('bug-report-title').textContent = '🐛 Signaler un bug — ' + item.title;
+                document.getElementById('bug-report-title').textContent = '🐛 Signaler un bug - ' + item.title;
                 document.getElementById('bug-report-text').value = '';
                 document.getElementById('bug-report-modal').classList.add('active');
             };
@@ -9944,7 +9944,7 @@
                     + (ep.description ? '<div style="font-size:.72rem;color:rgba(255,255,255,.3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ep.description + '</div>' : '')
                     + '</div>'
                     + '<span class="detail-ep-dur">' + (ep.duration || '') + '</span>'
-                    + (hasVideo ? '<span style="color:var(--teal);font-size:.85rem;flex-shrink:0;">▶</span>' : '<span style="color:rgba(255,255,255,.2);font-size:.75rem;flex-shrink:0;">—</span>')
+                    + (hasVideo ? '<span style="color:var(--teal);font-size:.85rem;flex-shrink:0;">▶</span>' : '<span style="color:rgba(255,255,255,.2);font-size:.75rem;flex-shrink:0;">-</span>')
                     + '</div>';
             }).join('');
         }
@@ -10012,7 +10012,7 @@
 
     <script>
         /* ═══════════════════════════════════════════════════
-           SYSTÈME BIBLIOTHÈQUE & PROGRESSION — PenguStream
+           SYSTÈME BIBLIOTHÈQUE & PROGRESSION - PenguStream
            Stockage : localStorage (par user ID)
         ═══════════════════════════════════════════════════ */
         (function () {
@@ -10201,7 +10201,7 @@
                 } else if (item.type === 'serie' && p.saison && p.episode) {
                     var resumeBtn2 = document.createElement('button');
                     resumeBtn2.className = 'btn-resume-detail';
-                    resumeBtn2.innerHTML = '⏱ Reprendre S' + p.saison + ' E' + p.episode + (p.epTitle ? ' — ' + p.epTitle : '');
+                    resumeBtn2.innerHTML = '⏱ Reprendre S' + p.saison + ' E' + p.episode + (p.epTitle ? ' - ' + p.epTitle : '');
                     resumeBtn2.onclick = function () {
                         window.closeDetailModal();
                         var targetEp = (item.episodes || []).find(function (e) { return e.saison === p.saison && e.numero === p.episode; });
@@ -10300,7 +10300,7 @@
                     var watchedBadge = p.watched ? '<span class="lib-card-watched">✓ Vu</span>' : '';
                     var sub = p.type === 'film'
                         ? (p.watched ? 'Film terminé' : (p.pct > 0 ? p.pct + '% visionné' : 'En cours'))
-                        : (p.watched ? 'Série terminée' : (p.saison ? 'S' + p.saison + ' E' + p.episode + (p.epTitle ? ' — ' + p.epTitle : '') : 'En cours'));
+                        : (p.watched ? 'Série terminée' : (p.saison ? 'S' + p.saison + ' E' + p.episode + (p.epTitle ? ' - ' + p.epTitle : '') : 'En cours'));
                     var resumeLabel = p.type === 'film'
                         ? (p.currentSec > 5 ? '▶ ' + formatTime(p.currentSec) : '▶ Revoir')
                         : (p.saison ? '▶ S' + p.saison + ' E' + p.episode : '▶ Reprendre');
@@ -10341,7 +10341,7 @@
 
     <script>
         /* ═══════════════════════════════════════════════════
-           SYSTÈME DE THÈMES GLOBAL — PenguStream
+           SYSTÈME DE THÈMES GLOBAL - PenguStream
         ═══════════════════════════════════════════════════ */
         (function () {
 
@@ -10581,7 +10581,7 @@ body.theme-feu_artifice .aurora-bg .a3{background:#f1c40f;}
 
     <script>
         /* ═══════════════════════════════════════════════════
-           SYSTÈME SAGAS v2 — PenguStream
+           SYSTÈME SAGAS v2 - PenguStream
         ═══════════════════════════════════════════════════ */
         (function () {
 
@@ -10689,7 +10689,7 @@ body.theme-feu_artifice .aurora-bg .a3{background:#f1c40f;}
                 window.sb.from('sagas').select('*').eq('id', id).single().then(function (r) {
                     if (r.error || !r.data) { window.toast('❌ Saga introuvable.', true); return; }
                     var s = r.data;
-                    document.getElementById('saga-form-title').textContent = 'Modifier — ' + s.title;
+                    document.getElementById('saga-form-title').textContent = 'Modifier - ' + s.title;
                     var icon = document.querySelector('.sfb-icon');
                     if (icon) icon.textContent = s.emoji || '🎭';
                     document.getElementById('saga-edit-id').value = s.id;
@@ -11530,7 +11530,7 @@ body.theme-feu_artifice .aurora-bg .a3{background:#f1c40f;}
 
     <script>
         /* ═══════════════════════════════════════════════════
-           FAVORIS & SPOTLIGHT — PenguStream
+           FAVORIS & SPOTLIGHT - PenguStream
         ═══════════════════════════════════════════════════ */
         (function () {
 
@@ -11884,13 +11884,13 @@ body.theme-feu_artifice .aurora-bg .a3{background:#f1c40f;}
                             return;
                         }
                         list.innerHTML = r.data.map(function (s) {
-                            var date = s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR') : '—';
+                            var date = s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR') : '-';
                             return '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(184,224,247,.1);border-radius:14px;padding:14px 16px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">'
                                 + (s.affiche_url ? '<img src="' + s.affiche_url + '" style="width:48px;height:70px;object-fit:cover;border-radius:8px;flex-shrink:0;" onerror="this.style.display=\'none\'">' : '<div style="width:48px;height:70px;background:rgba(255,255,255,.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">' + (s.type === 'Film' ? '🎬' : '📺') + '</div>')
                                 + '<div style="flex:1;min-width:160px;">'
                                 + '<div style="font-weight:800;font-size:.95rem;color:#fff;margin-bottom:3px;">' + s.titre + '</div>'
                                 + '<div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:6px;">' + s.type + (s.annee ? ' · ' + s.annee : '') + (s.tmdb_id ? ' · TMDB #' + s.tmdb_id : '') + '</div>'
-                                + '<div style="font-size:.8rem;color:rgba(255,255,255,.6);margin-bottom:4px;">👤 <strong>' + s.pseudo + '</strong>' + (s.message ? ' — ' + s.message : '') + '</div>'
+                                + '<div style="font-size:.8rem;color:rgba(255,255,255,.6);margin-bottom:4px;">👤 <strong>' + s.pseudo + '</strong>' + (s.message ? ' - ' + s.message : '') + '</div>'
                                 + '<div style="font-size:.72rem;color:rgba(255,255,255,.25);">' + date + '</div>'
                                 + '</div>'
                                 + '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">'
