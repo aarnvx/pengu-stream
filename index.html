@@ -22,6 +22,14 @@
         }
 
         #app-loading {
+            --loading-glow: rgba(23, 165, 137, .2);
+            --loading-glow-secondary: rgba(67, 230, 181, .1);
+            --loading-start: #0a3d62;
+            --loading-end: #051522;
+            --loading-accent: #43e6b5;
+            --loading-accent-alt: #b8e0f7;
+            --loading-card: rgba(5, 30, 48, .42);
+            --loading-border: rgba(184, 224, 247, .16);
             position: absolute;
             inset: 0;
             z-index: 2;
@@ -33,12 +41,133 @@
             overflow: hidden;
             color: #f2f9ff;
             background:
-                radial-gradient(ellipse at 50% 35%, rgba(23, 165, 137, .2), transparent 38%),
-                radial-gradient(ellipse at 15% 85%, rgba(67, 230, 181, .1), transparent 42%),
-                linear-gradient(145deg, #0a3d62, #051522 72%);
+                radial-gradient(ellipse at 50% 35%, var(--loading-glow), transparent 38%),
+                radial-gradient(ellipse at 15% 85%, var(--loading-glow-secondary), transparent 42%),
+                linear-gradient(145deg, var(--loading-start), var(--loading-end) 72%);
             font-family: system-ui, sans-serif;
             text-align: center;
             transition: opacity .45s ease, visibility .45s ease;
+        }
+
+        html[data-theme="hiver"] #app-loading {
+            --loading-glow: rgba(74, 144, 217, .25);
+            --loading-glow-secondary: rgba(137, 207, 240, .12);
+            --loading-start: #071428;
+            --loading-end: #040d1a;
+            --loading-accent: #89cff0;
+            --loading-accent-alt: #4a90d9;
+            --loading-card: rgba(4, 13, 26, .48);
+            --loading-border: rgba(137, 207, 240, .2);
+        }
+
+        html[data-theme="noel"] #app-loading {
+            --loading-glow: rgba(231, 76, 60, .2);
+            --loading-glow-secondary: rgba(39, 174, 96, .14);
+            --loading-start: #0d2b0d;
+            --loading-end: #0a0f0a;
+            --loading-accent: #e74c3c;
+            --loading-accent-alt: #27ae60;
+            --loading-card: rgba(10, 15, 10, .48);
+            --loading-border: rgba(231, 76, 60, .2);
+        }
+
+        html[data-theme="halloween"] #app-loading {
+            --loading-glow: rgba(255, 140, 0, .22);
+            --loading-glow-secondary: rgba(106, 13, 173, .18);
+            --loading-start: #1a0700;
+            --loading-end: #0d0300;
+            --loading-accent: #ff8c00;
+            --loading-accent-alt: #a855f7;
+            --loading-card: rgba(13, 3, 0, .5);
+            --loading-border: rgba(255, 140, 0, .2);
+        }
+
+        html[data-theme="paques"] #app-loading {
+            --loading-glow: rgba(168, 224, 99, .2);
+            --loading-glow-secondary: rgba(255, 107, 157, .16);
+            --loading-start: #0f2b10;
+            --loading-end: #0a1a0a;
+            --loading-accent: #a8e063;
+            --loading-accent-alt: #ff6b9d;
+            --loading-card: rgba(10, 26, 10, .48);
+            --loading-border: rgba(168, 224, 99, .2);
+        }
+
+        html[data-theme="valentin"] #app-loading {
+            --loading-glow: rgba(233, 30, 99, .22);
+            --loading-glow-secondary: rgba(255, 128, 171, .14);
+            --loading-start: #1f0510;
+            --loading-end: #100208;
+            --loading-accent: #ff4081;
+            --loading-accent-alt: #ff80ab;
+            --loading-card: rgba(16, 2, 8, .5);
+            --loading-border: rgba(255, 64, 129, .22);
+        }
+
+        html[data-theme="octobre_rose"] #app-loading {
+            --loading-glow: rgba(236, 72, 153, .22);
+            --loading-glow-secondary: rgba(219, 39, 119, .16);
+            --loading-start: #341329;
+            --loading-end: #190713;
+            --loading-accent: #ec4899;
+            --loading-accent-alt: #f9a8d4;
+            --loading-card: rgba(25, 7, 19, .5);
+            --loading-border: rgba(249, 168, 212, .2);
+        }
+
+        html[data-theme="novembre_bleu"] #app-loading {
+            --loading-glow: rgba(14, 165, 233, .24);
+            --loading-glow-secondary: rgba(37, 99, 235, .16);
+            --loading-start: #0c2444;
+            --loading-end: #061326;
+            --loading-accent: #0ea5e9;
+            --loading-accent-alt: #7dd3fc;
+            --loading-card: rgba(6, 19, 38, .5);
+            --loading-border: rgba(125, 211, 252, .2);
+        }
+
+        html[data-theme="printemps"] #app-loading {
+            --loading-glow: rgba(149, 213, 178, .2);
+            --loading-glow-secondary: rgba(255, 133, 161, .16);
+            --loading-start: #0a1f0a;
+            --loading-end: #050f05;
+            --loading-accent: #95d5b2;
+            --loading-accent-alt: #ff85a1;
+            --loading-card: rgba(5, 15, 5, .5);
+            --loading-border: rgba(149, 213, 178, .2);
+        }
+
+        html[data-theme="ete"] #app-loading {
+            --loading-glow: rgba(72, 202, 228, .2);
+            --loading-glow-secondary: rgba(247, 127, 0, .15);
+            --loading-start: #0a1428;
+            --loading-end: #050a1a;
+            --loading-accent: #48cae4;
+            --loading-accent-alt: #f77f00;
+            --loading-card: rgba(5, 10, 26, .5);
+            --loading-border: rgba(72, 202, 228, .2);
+        }
+
+        html[data-theme="feu_artifice"] #app-loading {
+            --loading-glow: rgba(231, 76, 60, .2);
+            --loading-glow-secondary: rgba(52, 152, 219, .18);
+            --loading-start: #0a0028;
+            --loading-end: #05001a;
+            --loading-accent: #f1c40f;
+            --loading-accent-alt: #3498db;
+            --loading-card: rgba(5, 0, 26, .5);
+            --loading-border: rgba(241, 196, 15, .2);
+        }
+
+        html[data-theme="automne"] #app-loading {
+            --loading-glow: rgba(230, 126, 34, .22);
+            --loading-glow-secondary: rgba(192, 57, 43, .16);
+            --loading-start: #1a0a00;
+            --loading-end: #0f0500;
+            --loading-accent: #f39c12;
+            --loading-accent-alt: #c0392b;
+            --loading-card: rgba(15, 5, 0, .5);
+            --loading-border: rgba(243, 156, 18, .2);
         }
 
         #app-loading[hidden] {
@@ -51,9 +180,9 @@
         #app-loading .loading-card {
             width: min(100%, 350px);
             padding: 32px 28px 28px;
-            border: 1px solid rgba(184, 224, 247, .16);
+            border: 1px solid var(--loading-border);
             border-radius: 28px;
-            background: rgba(5, 30, 48, .42);
+            background: var(--loading-card);
             box-shadow: 0 24px 80px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .07);
             backdrop-filter: blur(14px);
         }
@@ -64,7 +193,7 @@
             height: 104px;
             margin: 0 auto 18px;
             object-fit: contain;
-            filter: drop-shadow(0 12px 24px rgba(67, 230, 181, .28));
+            filter: drop-shadow(0 12px 24px var(--loading-glow));
             animation: pengu-loading-float 2.8s ease-in-out infinite;
         }
 
@@ -93,7 +222,7 @@
             width: 42%;
             height: 100%;
             border-radius: inherit;
-            background: linear-gradient(90deg, #43e6b5, #b8e0f7);
+            background: linear-gradient(90deg, var(--loading-accent), var(--loading-accent-alt));
             content: "";
             animation: pengu-loading-progress 1.5s ease-in-out infinite;
         }
@@ -121,8 +250,9 @@
     </style>
     <script>
         (function () {
+            var themes = ['hiver', 'noel', 'halloween', 'paques', 'valentin', 'octobre_rose', 'novembre_bleu', 'printemps', 'ete', 'feu_artifice', 'automne'];
             function setTheme(theme) {
-                if (theme === 'octobre_rose' || theme === 'novembre_bleu') document.documentElement.dataset.theme = theme;
+                if (themes.indexOf(theme) !== -1) document.documentElement.dataset.theme = theme;
                 else delete document.documentElement.dataset.theme;
             }
             try { setTheme(localStorage.getItem('pengu_active_theme')); } catch (error) {}
@@ -139,7 +269,7 @@
             <div class="loading-card">
                 <img class="loading-mascot" src="Emoji/icon.png" alt="">
                 <p class="loading-title">Prépare ton pop-corn</p>
-                <p class="loading-caption">La banquise PenguStream se réveille…</p>
+                <p class="loading-caption">PenguStream se prépare…</p>
                 <div class="loading-track" aria-hidden="true"></div>
             </div>
         </div>
