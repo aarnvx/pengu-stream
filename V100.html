@@ -8421,7 +8421,8 @@
             var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1a2Jwa2l0dWdjYW5ienl5cndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NjQ5NTIsImV4cCI6MjA5MTE0MDk1Mn0.OAoELEaURpfWdM8p-iw7U_KQ76wsgh_W5z9Z7eDn_iw';
             var sb = window.supabase.createClient(
                 'https://fukbpkitugcanbzyyrwk.supabase.co',
-                SUPABASE_ANON_KEY
+                SUPABASE_ANON_KEY,
+                { auth: { flowType: 'pkce' } }
             );
             window.sb = sb;
             window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
