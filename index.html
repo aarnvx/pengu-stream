@@ -1,386 +1,343 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PenguStream - Maintenance en cours</title>
-  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --glacier: #b8e0f7;
-      --deep: #051e30;
-      --ocean: #0a3d62;
-      --teal: #17a589;
-      --gold: #f0c040;
-      --aurora1: #43e6b5;
-      --aurora2: #7b68ee;
-      --aurora3: #ff6fb7;
-      --text-accent: #b8e0f7;
-    }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#051e30">
+    <meta name="description" content="Regardez des films, séries et animés en streaming sur PenguStream. Découvrez un catalogue glacial, vos favoris et les nouveautés.">
+    <meta property="og:title" content="PenguStream - Le streaming glacial">
+    <meta property="og:description" content="Films, séries et animés en streaming sur PenguStream.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pengustream.com/">
+    <link rel="icon" type="image/png" href="Emoji/icon.png">
+    <link rel="apple-touch-icon" href="Emoji/icon.png">
+    <link rel="canonical" href="https://pengustream.com/">
+    <title>PenguStream - Accueil</title>
+    <style>
+        :root {
+            --window-background: #051e30;
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--window-background);
+        }
 
-    html, body {
-      height: 100%;
-      font-family: 'Nunito', sans-serif;
-      background: var(--deep);
-      color: #fff;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+        html[data-theme="octobre_rose"] {
+            --window-background: #250d1d;
+        }
 
-    /* Aurora */
-    .aurora-bg {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-    .aurora-bg::before, .aurora-bg::after, .aurora-bg .a3 {
-      content: '';
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: .18;
-    }
-    .aurora-bg::before {
-      width: 700px; height: 400px;
-      background: var(--aurora1);
-      top: -100px; left: -200px;
-      animation: drift1 14s ease-in-out infinite alternate;
-    }
-    .aurora-bg::after {
-      width: 600px; height: 350px;
-      background: var(--aurora2);
-      top: 50px; right: -150px;
-      animation: drift2 17s ease-in-out infinite alternate;
-    }
-    .aurora-bg .a3 {
-      width: 500px; height: 300px;
-      background: var(--aurora3);
-      bottom: 100px; left: 30%;
-      animation: drift3 12s ease-in-out infinite alternate;
-    }
-    @keyframes drift1 { to { transform: translate(80px, 60px) scale(1.1); } }
-    @keyframes drift2 { to { transform: translate(-60px, 80px) scale(.9); } }
-    @keyframes drift3 { to { transform: translate(50px, -70px) scale(1.2); } }
+        html[data-theme="novembre_bleu"] {
+            --window-background: #0b2540;
+        }
 
-    /* Stars */
-    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-    .star {
-      position: absolute;
-      width: 2px; height: 2px;
-      background: #fff;
-      border-radius: 50%;
-      animation: twinkle var(--dur, 3s) ease-in-out infinite;
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: .1; }
-      50% { opacity: .9; }
-    }
+        iframe {
+            display: block;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            border: 0;
+            background: var(--window-background);
+        }
 
-    /* Flocons */
-    .flake {
-      position: fixed;
-      top: -30px;
-      font-size: 1.3rem;
-      animation: snowfall linear infinite;
-      opacity: .6;
-      pointer-events: none;
-      z-index: 1;
-    }
-    @keyframes snowfall {
-      to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-    }
+        main {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
 
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 40px;
-      background: rgba(5, 30, 48, .85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(184, 224, 247, .12);
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'Righteous', cursive;
-      font-size: 1.6rem;
-      color: var(--text-accent);
-      text-decoration: none;
-    }
-    .logo-penguin { font-size: 2rem; }
-    .btn-discord-nav {
-      background: #5865F2;
-      color: #fff;
-      padding: 8px 22px;
-      border-radius: 50px;
-      font-weight: 800;
-      font-size: .9rem;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: opacity .2s, transform .2s;
-    }
-    .btn-discord-nav:hover { opacity: .85; transform: translateY(-1px); }
+        #app-loading {
+            --loading-glow: rgba(23, 165, 137, .2);
+            --loading-glow-secondary: rgba(67, 230, 181, .1);
+            --loading-start: #0a3d62;
+            --loading-end: #051522;
+            --loading-accent: #43e6b5;
+            --loading-accent-alt: #b8e0f7;
+            --loading-card: rgba(5, 30, 48, .42);
+            --loading-border: rgba(184, 224, 247, .16);
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 28px;
+            overflow: hidden;
+            color: #f2f9ff;
+            background:
+                radial-gradient(ellipse at 50% 35%, var(--loading-glow), transparent 38%),
+                radial-gradient(ellipse at 15% 85%, var(--loading-glow-secondary), transparent 42%),
+                linear-gradient(145deg, var(--loading-start), var(--loading-end) 72%);
+            font-family: system-ui, sans-serif;
+            text-align: center;
+            transition: opacity .45s ease, visibility .45s ease;
+        }
 
-    /* MAIN */
-    main {
-      position: relative;
-      z-index: 10;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 100px 24px 60px;
-      text-align: center;
-    }
+        html[data-theme="hiver"] #app-loading {
+            --loading-glow: rgba(74, 144, 217, .25);
+            --loading-glow-secondary: rgba(137, 207, 240, .12);
+            --loading-start: #071428;
+            --loading-end: #040d1a;
+            --loading-accent: #89cff0;
+            --loading-accent-alt: #4a90d9;
+            --loading-card: rgba(4, 13, 26, .48);
+            --loading-border: rgba(137, 207, 240, .2);
+        }
 
-    .maintenance-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(240, 192, 64, .15);
-      border: 1.5px solid rgba(240, 192, 64, .4);
-      color: var(--gold);
-      font-weight: 800;
-      font-size: .8rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 6px 18px;
-      border-radius: 50px;
-      margin-bottom: 28px;
-      animation: pulse-badge 2.5s ease-in-out infinite;
-    }
-    @keyframes pulse-badge {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(240,192,64,0); }
-      50% { box-shadow: 0 0 16px 4px rgba(240,192,64,.18); }
-    }
+        html[data-theme="noel"] #app-loading {
+            --loading-glow: rgba(231, 76, 60, .2);
+            --loading-glow-secondary: rgba(39, 174, 96, .14);
+            --loading-start: #0d2b0d;
+            --loading-end: #0a0f0a;
+            --loading-accent: #e74c3c;
+            --loading-accent-alt: #27ae60;
+            --loading-card: rgba(10, 15, 10, .48);
+            --loading-border: rgba(231, 76, 60, .2);
+        }
 
-    .penguin-hero {
-      font-size: 6rem;
-      margin-bottom: 16px;
-      animation: bob 3s ease-in-out infinite;
-      display: block;
-      filter: drop-shadow(0 8px 32px rgba(67,230,181,.25));
-    }
-    @keyframes bob {
-      0%, 100% { transform: translateY(0) rotate(-3deg); }
-      50% { transform: translateY(-12px) rotate(3deg); }
-    }
+        html[data-theme="halloween"] #app-loading {
+            --loading-glow: rgba(255, 140, 0, .22);
+            --loading-glow-secondary: rgba(106, 13, 173, .18);
+            --loading-start: #1a0700;
+            --loading-end: #0d0300;
+            --loading-accent: #ff8c00;
+            --loading-accent-alt: #a855f7;
+            --loading-card: rgba(13, 3, 0, .5);
+            --loading-border: rgba(255, 140, 0, .2);
+        }
 
-    h1 {
-      font-family: 'Righteous', cursive;
-      font-size: clamp(2.2rem, 6vw, 4rem);
-      color: var(--text-accent);
-      line-height: 1.1;
-      margin-bottom: 12px;
-      text-shadow: 0 2px 30px rgba(67,230,181,.3);
-    }
-    h1 span {
-      background: linear-gradient(135deg, var(--aurora1), var(--aurora2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+        html[data-theme="paques"] #app-loading {
+            --loading-glow: rgba(168, 224, 99, .2);
+            --loading-glow-secondary: rgba(255, 107, 157, .16);
+            --loading-start: #0f2b10;
+            --loading-end: #0a1a0a;
+            --loading-accent: #a8e063;
+            --loading-accent-alt: #ff6b9d;
+            --loading-card: rgba(10, 26, 10, .48);
+            --loading-border: rgba(168, 224, 99, .2);
+        }
 
-    .subtitle {
-      font-size: 1.15rem;
-      color: rgba(184,224,247,.75);
-      max-width: 520px;
-      line-height: 1.7;
-      margin-bottom: 32px;
-    }
+        html[data-theme="valentin"] #app-loading {
+            --loading-glow: rgba(233, 30, 99, .22);
+            --loading-glow-secondary: rgba(255, 128, 171, .14);
+            --loading-start: #1f0510;
+            --loading-end: #100208;
+            --loading-accent: #ff4081;
+            --loading-accent-alt: #ff80ab;
+            --loading-card: rgba(16, 2, 8, .5);
+            --loading-border: rgba(255, 64, 129, .22);
+        }
 
-    /* Card */
-    .card {
-      background: rgba(10, 61, 98, .35);
-      border: 1px solid rgba(184,224,247,.12);
-      backdrop-filter: blur(12px);
-      border-radius: 24px;
-      padding: 28px 36px;
-      max-width: 540px;
-      width: 100%;
-      margin-bottom: 36px;
-    }
-    .card p {
-      font-size: .95rem;
-      color: rgba(255,255,255,.75);
-      line-height: 1.75;
-      font-style: italic;
-    }
-    .card .signature {
-      margin-top: 16px;
-      font-weight: 800;
-      color: var(--text-accent);
-      font-style: normal;
-      font-size: 1rem;
-    }
+        html[data-theme="octobre_rose"] #app-loading {
+            --loading-glow: rgba(236, 72, 153, .22);
+            --loading-glow-secondary: rgba(219, 39, 119, .16);
+            --loading-start: #341329;
+            --loading-end: #190713;
+            --loading-accent: #ec4899;
+            --loading-accent-alt: #f9a8d4;
+            --loading-card: rgba(25, 7, 19, .5);
+            --loading-border: rgba(249, 168, 212, .2);
+        }
 
-    /* Loader */
-    .loader-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 36px;
-      color: rgba(184,224,247,.5);
-      font-size: .85rem;
-      font-weight: 700;
-    }
-    .dots span {
-      display: inline-block;
-      width: 8px; height: 8px;
-      background: var(--aurora1);
-      border-radius: 50%;
-      margin: 0 3px;
-      animation: bounce-dot .9s ease-in-out infinite;
-    }
-    .dots span:nth-child(2) { animation-delay: .15s; background: var(--aurora2); }
-    .dots span:nth-child(3) { animation-delay: .3s; background: var(--aurora3); }
-    @keyframes bounce-dot {
-      0%, 100% { transform: translateY(0); opacity: .4; }
-      50% { transform: translateY(-8px); opacity: 1; }
-    }
+        html[data-theme="novembre_bleu"] #app-loading {
+            --loading-glow: rgba(14, 165, 233, .24);
+            --loading-glow-secondary: rgba(37, 99, 235, .16);
+            --loading-start: #0c2444;
+            --loading-end: #061326;
+            --loading-accent: #0ea5e9;
+            --loading-accent-alt: #7dd3fc;
+            --loading-card: rgba(6, 19, 38, .5);
+            --loading-border: rgba(125, 211, 252, .2);
+        }
 
-    /* Bouton Discord */
-    .btn-discord {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      background: #5865F2;
-      color: #fff;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 800;
-      font-size: 1rem;
-      padding: 14px 32px;
-      border-radius: 50px;
-      text-decoration: none;
-      box-shadow: 0 4px 24px rgba(88,101,242,.4);
-      transition: transform .2s, box-shadow .2s, opacity .2s;
-    }
-    .btn-discord:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 32px rgba(88,101,242,.55);
-      opacity: .93;
-    }
-    .btn-discord svg { width: 22px; height: 22px; flex-shrink: 0; }
+        html[data-theme="printemps"] #app-loading {
+            --loading-glow: rgba(149, 213, 178, .2);
+            --loading-glow-secondary: rgba(255, 133, 161, .16);
+            --loading-start: #0a1f0a;
+            --loading-end: #050f05;
+            --loading-accent: #95d5b2;
+            --loading-accent-alt: #ff85a1;
+            --loading-card: rgba(5, 15, 5, .5);
+            --loading-border: rgba(149, 213, 178, .2);
+        }
 
-    .info-tip {
-      margin-top: 18px;
-      font-size: .8rem;
-      color: rgba(184,224,247,.4);
-    }
+        html[data-theme="ete"] #app-loading {
+            --loading-glow: rgba(72, 202, 228, .2);
+            --loading-glow-secondary: rgba(247, 127, 0, .15);
+            --loading-start: #0a1428;
+            --loading-end: #050a1a;
+            --loading-accent: #48cae4;
+            --loading-accent-alt: #f77f00;
+            --loading-card: rgba(5, 10, 26, .5);
+            --loading-border: rgba(72, 202, 228, .2);
+        }
 
-    @media (max-width: 600px) {
-      nav { padding: 12px 18px; }
-      .card { padding: 22px 20px; }
-      h1 { font-size: 2rem; }
-      .penguin-hero { font-size: 4.5rem; }
-    }
-  </style>
+        html[data-theme="feu_artifice"] #app-loading {
+            --loading-glow: rgba(231, 76, 60, .2);
+            --loading-glow-secondary: rgba(52, 152, 219, .18);
+            --loading-start: #0a0028;
+            --loading-end: #05001a;
+            --loading-accent: #f1c40f;
+            --loading-accent-alt: #3498db;
+            --loading-card: rgba(5, 0, 26, .5);
+            --loading-border: rgba(241, 196, 15, .2);
+        }
+
+        html[data-theme="automne"] #app-loading {
+            --loading-glow: rgba(230, 126, 34, .22);
+            --loading-glow-secondary: rgba(192, 57, 43, .16);
+            --loading-start: #1a0a00;
+            --loading-end: #0f0500;
+            --loading-accent: #f39c12;
+            --loading-accent-alt: #c0392b;
+            --loading-card: rgba(15, 5, 0, .5);
+            --loading-border: rgba(243, 156, 18, .2);
+        }
+
+        #app-loading[hidden] {
+            display: flex;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #app-loading .loading-card {
+            width: min(100%, 350px);
+            padding: 32px 28px 28px;
+            border: 1px solid var(--loading-border);
+            border-radius: 28px;
+            background: var(--loading-card);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .07);
+            backdrop-filter: blur(14px);
+        }
+
+        #app-loading .loading-mascot {
+            display: block;
+            width: 104px;
+            height: 104px;
+            margin: 0 auto 18px;
+            object-fit: contain;
+            filter: drop-shadow(0 12px 24px var(--loading-glow));
+            animation: pengu-loading-float 2.8s ease-in-out infinite;
+        }
+
+        #app-loading .loading-title {
+            margin: 0;
+            font-size: clamp(1.35rem, 5vw, 1.7rem);
+            font-weight: 800;
+            letter-spacing: .01em;
+        }
+
+        #app-loading .loading-caption {
+            margin: 8px 0 22px;
+            color: rgba(232, 244, 253, .72);
+            font-size: .94rem;
+        }
+
+        #app-loading .loading-track {
+            height: 5px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: rgba(184, 224, 247, .14);
+        }
+
+        #app-loading .loading-track::after {
+            display: block;
+            width: 42%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--loading-accent), var(--loading-accent-alt));
+            content: "";
+            animation: pengu-loading-progress 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pengu-loading-float {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-9px) rotate(2deg); }
+        }
+
+        @keyframes pengu-loading-progress {
+            from { transform: translateX(-110%); }
+            to { transform: translateX(250%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #app-loading,
+            #app-loading *,
+            #app-loading *::before,
+            #app-loading *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+    <script>
+        (function () {
+            var themes = ['hiver', 'noel', 'halloween', 'paques', 'valentin', 'octobre_rose', 'novembre_bleu', 'printemps', 'ete', 'feu_artifice', 'automne'];
+            function setTheme(theme) {
+                if (themes.indexOf(theme) !== -1) document.documentElement.dataset.theme = theme;
+                else delete document.documentElement.dataset.theme;
+            }
+            window.addEventListener('message', function (event) {
+                var frame = document.querySelector('iframe');
+                if (frame && event.source === frame.contentWindow && event.data && event.data.type === 'pengu-theme-change') setTheme(event.data.theme);
+            });
+        })();
+    </script>
 </head>
 <body>
+    <main>
+        <div id="app-loading" role="status" aria-live="polite">
+            <div class="loading-card">
+                <img class="loading-mascot" src="Emoji/icon.png" alt="">
+                <p class="loading-title">Prépare ton pop-corn</p>
+                <p class="loading-caption">PenguStream se prépare…</p>
+                <div class="loading-track" aria-hidden="true"></div>
+            </div>
+        </div>
+        <script>
+            (function () {
+                var main = document.querySelector('main');
+                var loading = document.getElementById('app-loading');
+                var callbackKeys = ['code', 'error', 'error_code', 'error_description', 'error_uri', 'state'];
+                var callbackParams = new URLSearchParams();
+                var cleanParams = new URLSearchParams(window.location.search);
+                var hasAuthCallback = false;
 
-  <!-- Fond aurora -->
-  <div class="aurora-bg"><div class="a3"></div></div>
+                callbackKeys.forEach(function (key) {
+                    if (!cleanParams.has(key)) return;
+                    callbackParams.set(key, cleanParams.get(key));
+                    cleanParams.delete(key);
+                    if (key === 'code' || key === 'error') hasAuthCallback = true;
+                });
 
-  <!-- Étoiles -->
-  <div class="stars" id="stars"></div>
+                var appUrl = new URL('V100.html', window.location.href);
+                appUrl.hash = 'accueil';
+                if (hasAuthCallback) {
+                    appUrl.search = callbackParams.toString();
+                    var remainingQuery = cleanParams.toString();
+                    window.history.replaceState(window.history.state, '', window.location.pathname
+                        + (remainingQuery ? '?' + remainingQuery : '') + window.location.hash);
+                }
 
-  <!-- NAV -->
-  <nav>
-    <a class="logo" href="#">
-      <span class="logo-penguin">🐧</span>
-      PenguStream
-    </a>
-    <a class="btn-discord-nav" href="https://discord.gg/VOTRE_LIEN" target="_blank">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-        <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963a.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028z"/>
-      </svg>
-      Discord
-    </a>
-  </nav>
-
-  <!-- MAIN -->
-  <main>
-    <div class="maintenance-badge">🔧 &nbsp;Maintenance en cours</div>
-
-    <span class="penguin-hero">🐧</span>
-
-    <h1>PenguStream est<br><span>temporairement hors ligne</span></h1>
-
-    <p class="subtitle">
-      Le site reviendra très bientôt ! En attendant, suis l'avancement de la maintenance et les dernières nouvelles directement sur notre Discord. ❄️
-    </p>
-
-    <div class="loader-wrap">
-      Travaux en cours
-      <div class="dots">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-
-    <div class="card">
-      <p>
-🛠️ MAINTENANCE - AMÉLIORATION GLOBALE 🧊<br><br>
-
-🚀 Nous profitons de cette maintenance pour effectuer une amélioration globale de Pengu Stream !<br><br>
-
-✨ Au programme :<br><br>
-🔹 Amélioration générale du site<br><br>
-🔹 Optimisation des performances<br><br>
-🔹 Corrections de bugs et petits problèmes<br><br>
-🔹 Amélioration de l'expérience utilisateur<br><br>
-
-⏳ Le site sera temporairement inaccessible pendant l'intervention.<br><br>
-
-🐧 Nous faisons notre maximum pour vous proposer une expérience encore meilleure sur **Pengu Stream** !<br><br>
-
-❤️ Merci pour votre patience et votre soutien.<br><br>
-
-      </p>
-      <div class="signature">Aaron 🐧</div>
-    </div>
-
-    <a class="btn-discord" href="https://discord.gg/VOTRE_LIEN" target="_blank">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963a.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028z"/>
-      </svg>
-      Rejoindre le Discord
-    </a>
-
-    <p class="info-tip">Rejoins le serveur pour suivre la maintenance en temps réel 🔔</p>
-  </main>
-
-  <script>
-    // Étoiles
-    const starsEl = document.getElementById('stars');
-    for (let i = 0; i < 80; i++) {
-      const s = document.createElement('div');
-      s.className = 'star';
-      s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${2+Math.random()*4}s;opacity:${Math.random()*.6};`;
-      starsEl.appendChild(s);
-    }
-
-    // Flocons
-    const flakes = ['❄️','🐧','⛄','❄️','❄️'];
-    for (let i = 0; i < 14; i++) {
-      const f = document.createElement('div');
-      f.className = 'flake';
-      f.textContent = flakes[Math.floor(Math.random() * flakes.length)];
-      const dur = 8 + Math.random() * 12;
-      f.style.cssText = `left:${Math.random()*100}%;font-size:${0.9+Math.random()*1.2}rem;animation-duration:${dur}s;animation-delay:${-Math.random()*dur}s;opacity:${0.3+Math.random()*0.4};`;
-      document.body.appendChild(f);
-    }
-  </script>
+                var frame = document.createElement('iframe');
+                frame.title = 'PenguStream - Accueil';
+                frame.allow = 'fullscreen; autoplay';
+                frame.addEventListener('load', function () {
+                    if (frame.contentWindow.location.href !== 'about:blank') loading.hidden = true;
+                });
+                frame.src = appUrl.href;
+                main.insertBefore(frame, loading.nextSibling);
+            })();
+        </script>
+        <noscript><p><a href="V100.html#accueil">Ouvrir PenguStream</a></p></noscript>
+    </main>
 </body>
 </html>

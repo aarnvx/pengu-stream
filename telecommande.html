@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#08090d">
+    <meta name="description" content="Télécommande mobile PenguStream.">
+    <title>PenguStream - Télécommande</title>
+    <link rel="stylesheet" href="window-pages.css">
+    <script src="window-pages.js" defer></script>
+    <script>
+        (function () {
+            var room = window.location.hash.replace(/^#/, '');
+            var remoteRoute = /^[a-f0-9]{32}$/i.test(room)
+                ? 'telecommande/' + room
+                : 'telecommande';
+            window.addEventListener('DOMContentLoaded', function () {
+                var frame = document.getElementById('remote-control-frame');
+                frame.src = 'V100.html#' + remoteRoute;
+            });
+        })();
+    </script>
+</head>
+<body>
+    <iframe id="remote-control-frame" title="Télécommande PenguStream" allow="autoplay; fullscreen"></iframe>
+    <noscript><p>Active JavaScript pour utiliser la télécommande PenguStream.</p></noscript>
+</body>
+</html>

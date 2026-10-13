@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#051e30">
+    <meta name="description" content="Explore le catalogue PenguStream : films, séries et animés à découvrir.">
+    <link rel="icon" type="image/png" href="Emoji/icon.png">
+    <link rel="apple-touch-icon" href="Emoji/icon.png">
+    <title>PenguStream - Catalogue</title>
+    <link rel="stylesheet" href="window-pages.css">
+    <script src="window-pages.js" defer></script>
+    <script>
+        (function () {
+            var themes = ['hiver', 'noel', 'halloween', 'paques', 'valentin', 'octobre_rose', 'novembre_bleu', 'printemps', 'ete', 'feu_artifice', 'automne'];
+            function setTheme(theme) {
+                if (themes.indexOf(theme) !== -1) document.documentElement.dataset.theme = theme;
+                else delete document.documentElement.dataset.theme;
+            }
+            window.addEventListener('message', function (event) {
+                var frame = document.querySelector('iframe');
+                if (frame && event.source === frame.contentWindow && event.data && event.data.type === 'pengu-theme-change') setTheme(event.data.theme);
+            });
+        })();
+    </script>
+</head>
+<body>
+    <iframe src="V100.html#catalogue" title="Catalogue PenguStream" allow="fullscreen; autoplay"></iframe>
+    <noscript><p><a href="V100.html#catalogue">Ouvrir le catalogue PenguStream</a></p></noscript>
+</body>
+</html>
