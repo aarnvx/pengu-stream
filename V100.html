@@ -12111,7 +12111,7 @@
             function protectPlayerEmbed(html) {
                 return String(html || '').replace(/<iframe\b[^>]*>/gi, function (iframeTag) {
                     var safeTag = iframeTag.replace(/\s+sandbox(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi, '');
-                    return safeTag.slice(0, -1) + ' sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups">';
+                    return safeTag.slice(0, -1) + ' sandbox="allow-scripts allow-same-origin allow-presentation">';
                 });
             }
 
