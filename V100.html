@@ -6268,6 +6268,66 @@
             pointer-events: auto;
         }
 
+        #trailer-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1110;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(0, 0, 0, .88);
+            backdrop-filter: blur(12px);
+        }
+
+        #trailer-modal.open {
+            display: flex;
+        }
+
+        .trailer-dialog {
+            position: relative;
+            width: min(100%, 1040px);
+            padding: clamp(14px, 3vw, 28px);
+            border: 1px solid rgba(255, 255, 255, .14);
+            border-radius: 18px;
+            background: #08121e;
+            box-shadow: 0 28px 90px rgba(0, 0, 0, .65);
+        }
+
+        .trailer-dialog h2 {
+            margin: 0 56px 18px 0;
+            color: #fff;
+            font-size: clamp(1.05rem, 2vw, 1.4rem);
+        }
+
+        .trailer-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .trailer-frame-wrap {
+            overflow: hidden;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        .trailer-frame-wrap iframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
         .detail-box {
             position: relative;
             width: 100%;
@@ -9322,6 +9382,13 @@
                     En attente...
                 </div>
             </div>
+            <div id="trailer-modal" aria-hidden="true">
+                <section class="trailer-dialog" role="dialog" aria-modal="true" aria-labelledby="trailer-title">
+                    <button class="trailer-close" type="button" aria-label="Fermer la bande-annonce" onclick="closeTrailer()">✕</button>
+                    <h2 id="trailer-title">Bande-annonce</h2>
+                    <div class="trailer-frame-wrap" id="trailer-frame-wrap"></div>
+                </section>
+            </div>
 
             <script>
             var _globalFilmCleanupPreview = null;
@@ -10810,7 +10877,17 @@
                 }
             };
             document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') { window.closeModal(); closeFounderPanel(); window.closePlayer(); window.closeMenu(); }
+                if (e.key === 'Escape') {
+                    var trailerModal = document.getElementById('trailer-modal');
+                    if (trailerModal && trailerModal.classList.contains('open')) {
+                        window.closeTrailer();
+                        return;
+                    }
+                    window.closeModal();
+                    closeFounderPanel();
+                    window.closePlayer();
+                    window.closeMenu();
+                }
             });
 
             window.handleRegister = function () {
@@ -12034,17 +12111,7 @@
             function protectPlayerEmbed(html) {
                 return String(html || '').replace(/<iframe\b[^>]*>/gi, function (iframeTag) {
                     var safeTag = iframeTag.replace(/\s+sandbox(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi, '');
-                    var sourceMatch = safeTag.match(/\bsrc\s*=\s*(["'])(.*?)\1/i);
-                    if (sourceMatch) {
-                        try {
-                            if (new URL(sourceMatch[2], document.baseURI).hostname === 'fluxora.sbs') {
-                                return safeTag.slice(0, -1) + '>';
-                            }
-                        } catch (error) {
-                            console.warn('URL du lecteur vidéo invalide, sandbox conservé.', error);
-                        }
-                    }
-                    return safeTag.slice(0, -1) + ' sandbox="allow-scripts allow-same-origin allow-forms allow-presentation">';
+                    return safeTag.slice(0, -1) + ' sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups">';
                 });
             }
 
@@ -14907,6 +14974,46 @@
             });
         }
 
+        window.openTrailer = function (videoKey, title) {
+            if (typeof videoKey !== 'string' || !/^[A-Za-z0-9_-]{6,20}$/.test(videoKey)) {
+                toast('Cette bande-annonce ne peut pas être chargée.', true);
+                return;
+            }
+            var modal = document.getElementById('trailer-modal');
+            var frameWrap = document.getElementById('trailer-frame-wrap');
+            var trailerTitle = document.getElementById('trailer-title');
+            var frame = document.createElement('iframe');
+            var trailerUrl = new URL('https://www.youtube-nocookie.com/embed/' + encodeURIComponent(videoKey));
+            trailerUrl.searchParams.set('autoplay', '1');
+            trailerUrl.searchParams.set('rel', '0');
+            trailerUrl.searchParams.set('playsinline', '1');
+            trailerUrl.searchParams.set('origin', window.location.origin);
+            frame.title = 'Bande-annonce' + (title ? ' - ' + title : '');
+            frame.src = trailerUrl.toString();
+            frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+            frame.allowFullscreen = true;
+            frame.referrerPolicy = 'strict-origin-when-cross-origin';
+            frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation');
+            trailerTitle.textContent = title ? 'Bande-annonce - ' + title : 'Bande-annonce';
+            frameWrap.replaceChildren(frame);
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        };
+
+        window.closeTrailer = function () {
+            var modal = document.getElementById('trailer-modal');
+            var frameWrap = document.getElementById('trailer-frame-wrap');
+            if (frameWrap) frameWrap.replaceChildren();
+            if (modal) {
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        };
+
+        document.getElementById('trailer-modal').addEventListener('click', function (event) {
+            if (event.target === event.currentTarget) window.closeTrailer();
+        });
+
         window.openDetailModal = function (item) {
             var modal = document.getElementById('detail-modal');
             var requestId = ++detailInfoRequestId;
@@ -15021,12 +15128,13 @@
                             return video.site === 'YouTube' && video.type === 'Teaser' && video.key;
                         });
                         if (trailer) {
-                            var trailerButton = document.createElement('a');
+                            var trailerButton = document.createElement('button');
+                            trailerButton.type = 'button';
                             trailerButton.className = 'btn-trailer-detail';
-                            trailerButton.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(trailer.key);
-                            trailerButton.target = '_blank';
-                            trailerButton.rel = 'noopener noreferrer';
                             trailerButton.textContent = '▶ Bande-annonce';
+                            trailerButton.addEventListener('click', function () {
+                                window.openTrailer(trailer.key, item.title);
+                            });
                             actionsEl.insertBefore(trailerButton, actionsEl.children[1] || null);
                         }
                     })
