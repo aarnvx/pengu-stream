@@ -12776,6 +12776,11 @@
             }
 
             window.openPlayer = function (embedCode, title, cat, access, serie) {
+                if (!(window.currentUser || currentUser)) {
+                    toast('Connecte-toi ou crée un compte pour regarder ce contenu.', true);
+                    window.openModal('login');
+                    return;
+                }
                 clearPlayerEpisodeMonitor();
                 var contentContext = window._pendingPlayerItem || window._lastDetailItem || null;
                 window._pendingPlayerItem = null;
@@ -15415,13 +15420,9 @@
                 if (!user) {
                     btn.disabled = false;
                     btn.innerHTML = btnLabel;
-                    if (item.access === 'vip') {
-                        toast('🔒 Connecte-toi pour accéder au contenu VIP !', true);
-                        closeDetailModal();
-                        window.openModal('login');
-                    } else {
-                        launchFn();
-                    }
+                    toast('Connecte-toi ou crée un compte pour regarder ce contenu.', true);
+                    closeDetailModal();
+                    window.openModal('login');
                     return;
                 }
 
@@ -15647,8 +15648,8 @@
         window.playEpFromDetail = function (e, ep, item) {
             e.stopPropagation();
             var user = window.currentUser || currentUser;
-            if (item.access === 'vip' && !user) {
-                toast('🔒 Connecte-toi pour regarder !', true);
+            if (!user) {
+                toast('Connecte-toi ou crée un compte pour regarder ce contenu.', true);
                 closeDetailModal();
                 window.openModal('login');
                 return;
@@ -17910,6 +17911,11 @@
             /* ── Player ── */
             var _origOpenPlayer2 = window.openPlayer;
             window.openPlayer = function (embedCode, title, cat, access, serie) {
+                if (!(window.currentUser || currentUser)) {
+                    toast('Connecte-toi ou crée un compte pour regarder ce contenu.', true);
+                    window.openModal('login');
+                    return;
+                }
                 if (serie && serie.id) {
                     setHash('regarder/serie/' + slugify(serie.title || title));
                 } else {
