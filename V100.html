@@ -15,15 +15,38 @@
     <link rel="icon" type="image/png" href="Emoji/icon.png">
     <link rel="apple-touch-icon" href="Emoji/icon.png">
     <link rel="canonical" href="https://pengustream.com/">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800&display=swap"
-        rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:wght@400;600;700;800&display=swap"
-            rel="stylesheet">
-    </noscript>
     <style>
+        :root {
+            --font-body: "Nunito", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-heading: "Righteous", "Segoe UI", system-ui, sans-serif;
+        }
+
+        html, body {
+            font-family: var(--font-body);
+        }
+
+        img,
+        video,
+        iframe,
+        svg {
+            max-width: 100%;
+            height: auto;
+            content-visibility: auto;
+        }
+
+        img[loading="lazy"] {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
         :root {
             --glacier: #b8e0f7;
             --deep: #051e30;
@@ -8486,7 +8509,7 @@
             <div class="spotlight-overlay"></div>
             <div class="spotlight-overlay-bottom"></div>
             <div class="spotlight-poster-side" id="spotlight-poster-wrapper">
-                <img id="spotlight-poster-side" src="" alt=""
+                <img id="spotlight-poster-side" src="" alt="" loading="eager" decoding="async" fetchpriority="high" width="400" height="600"
                     style="width:100%;height:100%;object-fit:cover;display:block;">
             </div>
             <div class="spotlight-content">
@@ -9365,6 +9388,16 @@
 
             <!-- ── MAJ TMDB GLOBALE ── -->
             <div class="fp-section" id="fp-majtmdb">
+                <div style="padding:16px;margin-bottom:20px;border:1px solid rgba(184,224,247,.16);border-radius:14px;background:rgba(0,0,0,.16);">
+                    <h3 style="margin:0 0 8px;color:#fff;">👑 Répartition automatique des contenus VIP</h3>
+                    <p style="color:rgba(255,255,255,.62);font-size:.86rem;margin:0 0 12px;">
+                        Maintient environ 35 % du catalogue (films et séries réunis) en accès VIP. La sélection est aléatoire et rééquilibrée après chaque ajout ou suppression depuis le panneau.
+                    </p>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <button class="btn-tmdb" id="btn-auto-vip-toggle" type="button" onclick="toggleAutomaticVip35()">⏳ Chargement…</button>
+                        <span id="auto-vip-status" role="status" style="color:rgba(255,255,255,.7);font-size:.85rem;">Chargement du statut…</span>
+                    </div>
+                </div>
                 <p style="color:rgba(255,255,255,.5);font-size:.86rem;margin-bottom:18px;">
                     Cette action met à jour <strong style="color:#fff;">tous les films ou séries</strong> de la base de données 
                     en interrogeant TMDB pour écraser les affiches, bannières, et iframes automatiquement.
@@ -11950,7 +11983,7 @@
                         var g = catGradient(item.cat); var c1 = item.c1 || g.c1; var c2 = item.c2 || g.c2;
                         
                         var thumb = '<div class="card-thumb" style="background:linear-gradient(135deg,' + c1 + ',' + c2 + ');position:relative">';
-                        if (item.thumbUrl) thumb += '<img src="' + window.optimizeCardPosterUrl(item.thumbUrl) + '" alt="' + item.title + '" loading="lazy" onerror="this.style.display=\'none\'">';
+                        if (item.thumbUrl) thumb += '<img src="' + window.optimizeCardPosterUrl(item.thumbUrl) + '" alt="' + item.title + '" loading="lazy" decoding="async" fetchpriority="low" width="300" height="450" onerror="this.style.display=\'none\'">';
                         else thumb += '<div style="font-size:3.5rem;line-height:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;inset:0;">' + item.emoji + '</div>';
                         if (item.access === 'vip') thumb += '<span class="card-vip-lock">👑 VIP</span>';
                         thumb += '<div class="card-play-btn"><div class="card-play-icon' + (item.embedCode ? '' : ' no-video') + '">' + (item.embedCode ? '▶' : '🔒') + '</div></div>';
@@ -11983,7 +12016,7 @@
                         var nbEp = (item.episodes ? item.episodes.length : 0) || (item.tmdb_id ? 1 : 0);
                         
                         var thumb = '<div class="card-thumb" style="background:linear-gradient(135deg,' + c1 + ',' + c2 + ');position:relative">';
-                        if (item.thumbUrl) thumb += '<img src="' + window.optimizeCardPosterUrl(item.thumbUrl) + '" alt="' + item.title + '" loading="lazy" onerror="this.style.display=\'none\'">';
+                        if (item.thumbUrl) thumb += '<img src="' + window.optimizeCardPosterUrl(item.thumbUrl) + '" alt="' + item.title + '" loading="lazy" decoding="async" fetchpriority="low" width="300" height="450" onerror="this.style.display=\'none\'">';
                         else thumb += '<div style="font-size:3.5rem;line-height:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;inset:0;">' + item.emoji + '</div>';
                         if (item.access === 'vip') thumb += '<span class="card-vip-lock">👑 VIP</span>';
                         thumb += '<div class="card-play-btn"><div class="card-play-icon' + (nbEp > 0 ? '' : ' no-video') + '">' + (nbEp > 0 ? '▶' : '🔒') + '</div></div>';
@@ -13141,6 +13174,7 @@
                 btn.classList.add('active');
                 document.querySelectorAll('.fp-section').forEach(function (s) { s.classList.remove('active'); });
                 document.getElementById('fp-' + tab).classList.add('active');
+                if (tab === 'majtmdb') loadAutomaticVip35Status();
                 if (tab === 'films' && !window._fpLoadedTabs.films) {
                     loadFilmsList();
                     window._fpLoadedTabs.films = true;
@@ -13160,6 +13194,193 @@
                 if (tab === 'themes' && !window._fpLoadedTabs.themes) {
                     renderThemeGrid();
                     window._fpLoadedTabs.themes = true;
+                }
+            };
+
+            var AUTO_VIP_35_KEY = 'automatic_vip_35';
+            var _automaticVip35State = null;
+            var _automaticVip35Busy = false;
+            var _automaticVip35ReconcileQueue = Promise.resolve();
+
+            function _parseAutomaticVip35State(value) {
+                var parsed = value;
+                if (typeof parsed === 'string') {
+                    try { parsed = JSON.parse(parsed); } catch (error) { parsed = null; }
+                }
+                return {
+                    enabled: !!(parsed && parsed.enabled),
+                    films: parsed && Array.isArray(parsed.films) ? parsed.films : [],
+                    series: parsed && Array.isArray(parsed.series) ? parsed.series : []
+                };
+            }
+
+            async function _readAutomaticVip35State() {
+                var res = await sb.from('settings').select('value').eq('key', AUTO_VIP_35_KEY).maybeSingle();
+                if (res.error) throw res.error;
+                _automaticVip35State = _parseAutomaticVip35State(res.data && res.data.value);
+                return _automaticVip35State;
+            }
+
+            async function _writeAutomaticVip35State(state) {
+                var res = await sb.from('settings').upsert({
+                    key: AUTO_VIP_35_KEY,
+                    value: JSON.stringify(state)
+                }, { onConflict: 'key' });
+                if (res.error) throw res.error;
+                _automaticVip35State = state;
+            }
+
+            async function _getAllCatalogRows(table) {
+                var rows = [];
+                var pageSize = 500;
+                for (var offset = 0; ; offset += pageSize) {
+                    var res = await sb.from(table).select('id,access').range(offset, offset + pageSize - 1);
+                    if (res.error) throw res.error;
+                    var page = res.data || [];
+                    rows = rows.concat(page);
+                    if (page.length < pageSize) break;
+                }
+                return rows;
+            }
+
+            function _shuffleAutomaticVipRows(rows) {
+                for (var i = rows.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = rows[i];
+                    rows[i] = rows[j];
+                    rows[j] = temp;
+                }
+                return rows;
+            }
+
+            async function _setAutomaticVipAccess(table, ids, access) {
+                for (var offset = 0; offset < ids.length; offset += 100) {
+                    var batch = ids.slice(offset, offset + 100);
+                    var res = await sb.from(table).update({ access: access }).in('id', batch).select('id');
+                    if (res.error) throw res.error;
+                    if (!res.data || res.data.length !== batch.length) {
+                        throw new Error('Mise à jour incomplète de la table ' + table + ' (policies RLS UPDATE/SELECT à vérifier).');
+                    }
+                }
+            }
+
+            async function _reconcileAutomaticVip35() {
+                var state = _automaticVip35State || await _readAutomaticVip35State();
+                if (!state.enabled) return { vipCount: 0, total: 0 };
+
+                var result = await Promise.all([_getAllCatalogRows('films'), _getAllCatalogRows('series')]);
+                var catalog = { films: result[0], series: result[1] };
+                var records = catalog.films.concat(catalog.series);
+                var targetVipCount = Math.round(records.length * 0.35);
+                var keepIds = { films: new Set(), series: new Set() };
+                var toRemove = { films: [], series: [] };
+                var toAdd = { films: [], series: [] };
+                var currentVip = [];
+                var candidates = [];
+                ['films', 'series'].forEach(function (table) {
+                    catalog[table].forEach(function (item) {
+                        var row = { table: table, item: item };
+                        if (item.access === 'vip') currentVip.push(row);
+                        else candidates.push(row);
+                    });
+                });
+                _shuffleAutomaticVipRows(currentVip);
+                var keptVip = currentVip.slice(0, targetVipCount);
+                keptVip.forEach(function (entry) {
+                    keepIds[entry.table].add(String(entry.item.id));
+                });
+                currentVip.slice(targetVipCount).forEach(function (entry) {
+                    toRemove[entry.table].push(entry.item.id);
+                });
+
+                var needed = targetVipCount - keptVip.length;
+                _shuffleAutomaticVipRows(candidates);
+                candidates.slice(0, needed).forEach(function (entry) {
+                    toAdd[entry.table].push(entry.item);
+                    keepIds[entry.table].add(String(entry.item.id));
+                });
+
+                await Promise.all([
+                    _setAutomaticVipAccess('films', toRemove.films, 'all'),
+                    _setAutomaticVipAccess('series', toRemove.series, 'all'),
+                    _setAutomaticVipAccess('films', toAdd.films.map(function (item) { return item.id; }), 'vip'),
+                    _setAutomaticVipAccess('series', toAdd.series.map(function (item) { return item.id; }), 'vip')
+                ]);
+
+                var nextState = {
+                    enabled: true,
+                    films: Array.from(keepIds.films),
+                    series: Array.from(keepIds.series)
+                };
+                await _writeAutomaticVip35State(nextState);
+                return { vipCount: nextState.films.length + nextState.series.length, total: records.length };
+            }
+
+            function _queueAutomaticVip35Reconcile() {
+                var run = _automaticVip35ReconcileQueue.then(function () {
+                    return _reconcileAutomaticVip35();
+                });
+                _automaticVip35ReconcileQueue = run.then(function () {}, function () {});
+                return run;
+            }
+
+            window.loadAutomaticVip35Status = async function () {
+                var status = document.getElementById('auto-vip-status');
+                var button = document.getElementById('btn-auto-vip-toggle');
+                if (!status || !button) return;
+                status.textContent = 'Chargement du statut…';
+                try {
+                    var state = await _readAutomaticVip35State();
+                    button.textContent = state.enabled ? '⏸ Désactiver' : '▶ Activer';
+                    status.textContent = state.enabled ? 'Système activé : répartition cible de 35 %.' : 'Système désactivé.';
+                } catch (error) {
+                    status.textContent = 'Impossible de lire le statut : ' + error.message;
+                    button.textContent = 'Réessayer';
+                    console.error('Erreur de lecture du système VIP automatique', error);
+                }
+            };
+
+            window.toggleAutomaticVip35 = async function () {
+                if (currentRole !== 'fondateur' || _automaticVip35Busy) return;
+                var button = document.getElementById('btn-auto-vip-toggle');
+                var status = document.getElementById('auto-vip-status');
+                _automaticVip35Busy = true;
+                if (button) button.disabled = true;
+                try {
+                    await _automaticVip35ReconcileQueue;
+                    var state = await _readAutomaticVip35State();
+                    if (state.enabled) {
+                        state.enabled = false;
+                        await _writeAutomaticVip35State(state);
+                        if (status) status.textContent = 'Système désactivé. Les accès VIP actuels sont conservés, mais ne seront plus rééquilibrés.';
+                    } else {
+                        state.enabled = true;
+                        await _writeAutomaticVip35State(state);
+                        var counts = await _queueAutomaticVip35Reconcile();
+                        if (status) status.textContent = 'Système activé : ' + counts.vipCount + ' contenu(s) VIP sur ' + counts.total + ' (cible 35 %).';
+                    }
+                    await window.loadAutomaticVip35Status();
+                } catch (error) {
+                    console.error('Erreur de mise à jour de la répartition VIP automatique', error);
+                    if (status) status.textContent = 'Échec : ' + error.message;
+                    toast('❌ Impossible de mettre à jour la répartition VIP : ' + error.message, true);
+                } finally {
+                    _automaticVip35Busy = false;
+                    if (button) button.disabled = false;
+                }
+            };
+
+            window.reconcileAutomaticVip35AfterCatalogChange = async function () {
+                var state = _automaticVip35State || await _readAutomaticVip35State();
+                if (!state.enabled) return;
+                try {
+                    var counts = await _queueAutomaticVip35Reconcile();
+                    var status = document.getElementById('auto-vip-status');
+                    if (status) status.textContent = 'Rééquilibré : ' + counts.vipCount + ' contenu(s) VIP sur ' + counts.total + ' (cible 35 %).';
+                } catch (error) {
+                    console.error('Erreur de rééquilibrage VIP automatique', error);
+                    toast('⚠️ Le contenu est enregistré, mais le rééquilibrage VIP a échoué : ' + error.message, true);
+                    throw error;
                 }
             };
 
@@ -13184,13 +13405,15 @@
                     tb.innerHTML = res.data.map(function (u) {
                         var r = u.role || 'user', ri = ROLES[r] || ROLES.user;
                         var canEdit = currentRole === 'fondateur' || (currentRole === 'admin' && ri.level < 3);
-                        var opts = Object.keys(ROLES).map(function (k) { return '<option value="' + k + '"' + (k === r ? ' selected' : '') + '>' + ROLES[k].label + '</option>'; }).join('');
+                        var opts = Object.keys(ROLES).filter(function (k) {
+                            return currentRole === 'fondateur' || ROLES[k].level < 3;
+                        }).map(function (k) { return '<option value="' + k + '"' + (k === r ? ' selected' : '') + '>' + ROLES[k].label + '</option>'; }).join('');
                         return '<tr>' +
                             '<td><strong>' + (u.username || '-') + '</strong></td>' +
                             '<td style="color:rgba(255,255,255,.6);font-size:.81rem">' + (u.email || '-') + '</td>' +
                             '<td><span class="role-badge ' + ri.css + '">' + ri.label + '</span></td>' +
                             '<td>' + (canEdit ? '<select class="role-select" id="role-' + u.id + '">' + opts + '</select>' : '<span style="color:rgba(255,255,255,.3);font-size:.79rem">-</span>') + '</td>' +
-                            '<td>' + (canEdit ? '<button class="btn-save-role" onclick="saveRole(\'' + u.id + '\',\'' + (u.username || u.email) + '\')">Sauvegarder</button>' : '') + '</td>' +
+                            '<td>' + (canEdit ? '<button class="btn-save-role" id="save-role-' + u.id + '" onclick="saveRole(\'' + u.id + '\',\'' + (u.username || u.email) + '\')">Sauvegarder</button>' : '') + '</td>' +
                             '</tr>';
                     }).join('');
                 });
@@ -13198,17 +13421,29 @@
             window.saveRole = function (uid, pseudo) {
                 var sel = document.getElementById('role-' + uid); if (!sel) return;
                 var nr = sel.value;
-                var btn = document.querySelector('#role-' + uid + ' ~ .btn-save-role') || null;
+                if (!ROLES[nr] || (currentRole !== 'fondateur' && (currentRole !== 'admin' || ROLES[nr].level >= 3))) {
+                    toast('❌ Tu n’as pas l’autorisation d’attribuer ce rôle.', true);
+                    return;
+                }
+                var btn = document.getElementById('save-role-' + uid);
                 if (btn) { btn.disabled = true; btn.textContent = '⏳ Sauvegarde…'; }
-                sb.from('profiles').update({ role: nr }).eq('id', uid).select().then(function (res) {
+                sb.from('profiles').update({ role: nr }).eq('id', uid).select('id,role').then(function (res) {
                     if (btn) { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
                     if (res.error) {
                         console.error('saveRole error', { status: res.status, error: res.error, message: (res.error && res.error.message), details: (res.error && res.error.details), hint: (res.error && res.error.hint) });
                         toast('❌ Erreur sauvegarde : ' + (res.error && res.error.message ? res.error.message : 'unknown'), true);
                         return;
                     }
-                    // If update succeeded, reflect new role badge and refresh list
+                    if (!res.data || res.data.length === 0 || res.data[0].role !== nr) {
+                        toast('❌ Le rôle n’a pas été modifié. Vérifie les policies RLS UPDATE/SELECT de la table profiles.', true);
+                        return;
+                    }
                     toast('✅ Rôle de ' + pseudo + ' → ' + (ROLES[nr] || ROLES.user).label);
+                    if (currentUser && currentUser.id === uid) {
+                        currentRole = nr;
+                        window.currentRole = nr;
+                        if (window.updateNavbar) window.updateNavbar(currentUser, nr);
+                    }
                     searchUsers(true);
                 }).catch(function (err) {
                     if (btn) { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
@@ -13371,15 +13606,23 @@
                         ? sb.from('films').update(data).eq('id', editId).select()
                         : sb.from('films').insert(Object.assign({}, data, { created_by: currentUser ? currentUser.id : null, uploader_name: uploaderName })).select();
 
-                    op.then(function (res) {
+                    op.then(async function (res) {
                         setBtn('btn-save-film', false, '💾 Enregistrer le film');
                         if (res.error) { toast('❌ Erreur : ' + res.error.message, true); return; }
+                        if (!res.data || !res.data[0]) { toast('❌ Le film n’a pas été enregistré.', true); return; }
+                        var f = res.data[0];
+                        try {
+                            await window.reconcileAutomaticVip35AfterCatalogChange();
+                            var accessRes = await sb.from('films').select('access').eq('id', f.id).single();
+                            if (!accessRes.error && accessRes.data) f.access = accessRes.data.access;
+                        } catch (error) {
+                            console.error('Rééquilibrage VIP après sauvegarde du film impossible', error);
+                        }
                         toast(editId ? '✅ Film modifié !' : '🎬 Film ajouté au catalogue !');
                         if (editId) {
                             var old = document.querySelector('[data-film-id="' + editId + '"]');
                             if (old) old.remove();
                         }
-                        var f = res.data[0];
                         addFilmCard({ id: f.id, title: f.title, cat: f.cat, emoji: f.emoji || '🎬', badge: f.badge || 'new', access: f.access || 'all', embedCode: f.video_url, thumbUrl: f.thumb_url, bannerUrl: f.banner_url, description: f.description });
                         applyVip(currentRole);
                         window.hideFilmForm();
@@ -13392,8 +13635,10 @@
 
             window.deleteFilm = function (id, title) {
                 if (!confirm('Supprimer "' + title + '" ?')) return;
-                sb.from('films').delete().eq('id', id).then(function (res) {
+                sb.from('films').delete().eq('id', id).then(async function (res) {
                     if (res.error) { toast('❌ Erreur suppression.', true); return; }
+                    try { await window.reconcileAutomaticVip35AfterCatalogChange(); }
+                    catch (error) { console.error('Rééquilibrage VIP après suppression du film impossible', error); }
                     var card = document.querySelector('[data-film-id="' + id + '"]');
                     if (card) card.remove();
                     toast('🗑️ "' + title + '" supprimé.');
@@ -13689,12 +13934,21 @@
                         ? sb.from('series').update(data).eq('id', editId).select()
                         : sb.from('series').insert(Object.assign({}, data, { created_by: currentUser ? currentUser.id : null, uploader_name: uploaderName })).select();
 
-                    op.then(function (res) {
+                    op.then(async function (res) {
                         if (res.error) { setBtn('btn-save-serie', false, '💾 Enregistrer la série'); toast('❌ Erreur : ' + res.error.message, true); return; }
+                        if (!res.data || !res.data[0]) { setBtn('btn-save-serie', false, '💾 Enregistrer la série'); toast('❌ La série n’a pas été enregistrée.', true); return; }
                         var serieId = res.data[0].id;
                         var hasTmdb = !!(data.tmdb_id);
 
-                        function _afterEpisodes() {
+                        async function _afterEpisodes() {
+                            var s = res.data[0];
+                            try {
+                                await window.reconcileAutomaticVip35AfterCatalogChange();
+                                var accessRes = await sb.from('series').select('access').eq('id', s.id).single();
+                                if (!accessRes.error && accessRes.data) s.access = accessRes.data.access;
+                            } catch (error) {
+                                console.error('Rééquilibrage VIP après sauvegarde de la série impossible', error);
+                            }
                             setBtn('btn-save-serie', false, '💾 Enregistrer la série');
                             toast(editId ? '✅ Série modifiée !' : '📺 Série ajoutée !');
                             if (editId && window._epCache) delete window._epCache['ep_' + editId];
@@ -13703,7 +13957,6 @@
                                 var old = document.querySelector('[data-serie-id=\"' + editId + '\"');
                                 if (old) old.remove();
                             }
-                            var s = res.data[0];
                             var cardEps = hasTmdb ? [] : allEps.map(function (e) { return Object.assign({}, e, { serie_id: serieId, embed: e.video_url || '' }); });
                             if (window.addSerieCard) {
                                 window.addSerieCard({ id: s.id, title: s.title, cat: s.cat, emoji: s.emoji || '📺', badge: s.badge || 'serie', access: s.access || 'all', thumbUrl: s.thumb_url, bannerUrl: s.banner_url, description: s.description, nb_saisons: s.nb_saisons || 1, tmdb_id: s.tmdb_id }, cardEps);
@@ -13754,8 +14007,10 @@
 
             window.deleteSerie = function (id, title) {
                 if (!confirm('Supprimer "' + title + '" et tous ses épisodes ?')) return;
-                sb.from('series').delete().eq('id', id).then(function (res) {
+                sb.from('series').delete().eq('id', id).then(async function (res) {
                     if (res.error) { toast('❌ Erreur suppression.', true); return; }
+                    try { await window.reconcileAutomaticVip35AfterCatalogChange(); }
+                    catch (error) { console.error('Rééquilibrage VIP après suppression de la série impossible', error); }
                     var card = document.querySelector('[data-serie-id="' + id + '"]');
                     if (card) card.remove();
                     toast('🗑️ "' + title + '" supprimée.');

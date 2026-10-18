@@ -87,10 +87,20 @@ const server = http.createServer((request, response) => {
             return;
         }
 
-        response.writeHead(200, {
-            'Content-Type': MIME_TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+        const ext = path.extname(filePath).toLowerCase();
+        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+        const headers = {
+            'Content-Type': contentType,
             'X-Content-Type-Options': 'nosniff'
-        });
+        };
+
+        if (['.css', '.js', '.svg', '.webp', '.png', '.jpg', '.jpeg', '.ico'].includes(ext)) {
+            headers['Cache-Control'] = 'public, max-age=31536000, immutable';
+        } else if (ext === '.html') {
+            headers['Cache-Control'] = 'no-cache';
+        }
+
+        response.writeHead(200, headers);
         response.end(request.method === 'HEAD' ? undefined : content);
     });
 });
