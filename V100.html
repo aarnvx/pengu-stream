@@ -8929,6 +8929,7 @@
                 <button class="fp-tab" id="tab-series-btn" onclick="fpTab('series',this)">📺 Séries</button>
                 <button class="fp-tab" id="tab-sagas-btn" onclick="fpTab('sagas',this)">🎭 Sagas</button>
                 <button class="fp-tab" id="tab-cats-btn" onclick="fpTab('cats',this)">🏷️ Catégories</button>
+                <button class="fp-tab" id="tab-readers-btn" onclick="fpTab('readers',this)">▶️ Lecteurs</button>
                 <button class="fp-tab" id="tab-themes-btn" onclick="fpTab('themes',this)">🎨 Thèmes</button>
                 <button class="fp-tab" id="tab-suggestions-btn" onclick="fpTab('suggestions',this)">💡
                     Suggestions</button>
@@ -9255,6 +9256,30 @@
                             style="background:var(--teal);border:none;color:#fff;padding:9px 16px;border-radius:9px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;">+
                             Ajouter</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- ── LECTEURS ── -->
+            <div class="fp-section" id="fp-readers">
+                <p style="color:rgba(255,255,255,.55);font-size:.86rem;line-height:1.6;margin-bottom:8px;">Gère les sources proposées dans le lecteur vidéo. Les modifications sont enregistrées pour tous les visiteurs.</p>
+                <p id="player-sources-status" role="status" style="color:rgba(255,255,255,.4);font-size:.8rem;margin-bottom:14px;"></p>
+                <div id="player-sources-list" style="display:grid;gap:12px;margin-bottom:22px;"></div>
+                <div style="border-top:1px solid rgba(184,224,247,.12);padding-top:16px;">
+                    <p style="font-weight:800;font-size:.86rem;color:var(--text-accent);margin-bottom:10px;">➕ Ajouter un lecteur</p>
+                    <div class="fp-form-group" style="margin-bottom:10px;">
+                        <label for="new-player-source-name">Nom affiché</label>
+                        <input id="new-player-source-name" type="text" maxlength="40" placeholder="Ex. Lecteur HD">
+                    </div>
+                    <div class="fp-form-group" style="margin-bottom:10px;">
+                        <label for="new-player-source-movie">URL du film</label>
+                        <input id="new-player-source-movie" type="url" maxlength="1000" placeholder="https://exemple.com/movie/{id}">
+                    </div>
+                    <div class="fp-form-group" style="margin-bottom:10px;">
+                        <label for="new-player-source-tv">URL de la série</label>
+                        <input id="new-player-source-tv" type="url" maxlength="1000" placeholder="https://exemple.com/tv/{id}/{season}/{episode}">
+                    </div>
+                    <p style="color:rgba(255,255,255,.38);font-size:.78rem;line-height:1.5;margin:0 0 12px;">Utilise <code>{id}</code> pour l’identifiant TMDB, <code>{season}</code> et <code>{episode}</code> pour les séries, et <code>{lang}</code> pour la langue (VF).</p>
+                    <button class="btn-fp-action" type="button" onclick="addPlayerSource()">Ajouter le lecteur</button>
                 </div>
             </div>
 
@@ -12125,9 +12150,256 @@
                 });
             }
 
+            var PLAYER_SOURCES_KEY = 'player_sources';
+            var DEFAULT_PLAYER_SOURCES = [
+                { id: 'zenix', name: 'Lecteur 1', movieUrl: 'https://fluxora.sbs/embed/zenix?tmdb={id}&type=movie&lang={lang}', tvUrl: 'https://fluxora.sbs/embed/zenix?tmdb={id}&type=tv&season={season}&episode={episode}&lang={lang}' },
+                { id: 'heiwastream', name: 'Lecteur 2', movieUrl: 'https://heiwastream.fr/embed/movie/{id}?lang={lang}&autoplay=1', tvUrl: 'https://heiwastream.fr/embed/tv/{id}/{season}/{episode}?lang={lang}&autoplay=1' },
+                { id: 'cinesrc', name: 'Lecteur 3', movieUrl: 'https://cinesrc.st/embed/movie/{id}', tvUrl: 'https://cinesrc.st/embed/tv/{id}/{season}/{episode}' }
+            ];
+            var playerSources = DEFAULT_PLAYER_SOURCES.map(function (source) {
+                return { id: source.id, name: source.name, movieUrl: source.movieUrl, tvUrl: source.tvUrl };
+            });
+            var playerSourcesLoadError = null;
+            var playerSourcesReady = false;
+
+            function validatePlayerSource(source) {
+                if (!source || typeof source.id !== 'string' || !/^[a-z0-9_-]{1,48}$/.test(source.id)) {
+                    throw new Error('Identifiant de lecteur invalide.');
+                }
+                if (typeof source.name !== 'string' || !source.name.trim() || source.name.trim().length > 40) {
+                    throw new Error('Le nom du lecteur doit contenir entre 1 et 40 caractères.');
+                }
+                function validateTemplate(template, isTv) {
+                    if (typeof template !== 'string' || template.length > 1000 || !template.includes('{id}')) {
+                        throw new Error('Chaque URL doit contenir le paramètre {id}.');
+                    }
+                    if (isTv && (!template.includes('{season}') || !template.includes('{episode}'))) {
+                        throw new Error('L’URL de série doit contenir {season} et {episode}.');
+                    }
+                    if (/[{}]/.test(template.replace(/\{(?:id|season|episode|lang)\}/g, ''))) {
+                        throw new Error('Un paramètre de l’URL n’est pas reconnu.');
+                    }
+                    var testUrl;
+                    try {
+                        testUrl = new URL(template.replace(/\{(?:id|season|episode|lang)\}/g, '1'));
+                    } catch (error) {
+                        throw new Error('Saisis une URL complète valide (https://…).');
+                    }
+                    if ((testUrl.protocol !== 'https:' && testUrl.protocol !== 'http:') || testUrl.username || testUrl.password) {
+                        throw new Error('L’URL doit utiliser HTTP ou HTTPS sans identifiants.');
+                    }
+                }
+                validateTemplate(source.movieUrl, false);
+                validateTemplate(source.tvUrl, true);
+                return {
+                    id: source.id,
+                    name: source.name.trim(),
+                    movieUrl: source.movieUrl.trim(),
+                    tvUrl: source.tvUrl.trim()
+                };
+            }
+
+            function normalizePlayerSources(value) {
+                var parsed = value;
+                if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                if (!Array.isArray(parsed) || !parsed.length) throw new Error('La liste des lecteurs est vide ou invalide.');
+                var ids = {};
+                return parsed.map(function (source) {
+                    var validSource = validatePlayerSource(source);
+                    if (ids[validSource.id]) throw new Error('La liste contient un identifiant de lecteur en double.');
+                    ids[validSource.id] = true;
+                    return validSource;
+                });
+            }
+
+            function populatePlayerSourceSelector() {
+                var selector = document.getElementById('player-source-selector');
+                if (!selector) return;
+                var previousValue = selector.value;
+                selector.innerHTML = '';
+                playerSources.forEach(function (source) {
+                    var option = document.createElement('option');
+                    option.value = source.id;
+                    option.textContent = source.name;
+                    selector.appendChild(option);
+                });
+                var previousSourceStillExists = playerSources.some(function (source) { return source.id === previousValue; });
+                selector.value = previousSourceStillExists ? previousValue : playerSources[0].id;
+                if (!previousSourceStillExists
+                    && document.getElementById('player-modal').classList.contains('open')
+                    && typeof window.changePlayerSource === 'function') {
+                    window.changePlayerSource();
+                }
+            }
+
+            async function loadPlayerSources() {
+                try {
+                    var result = await window.sb.from('settings').select('value').eq('key', PLAYER_SOURCES_KEY).maybeSingle();
+                    if (result.error) throw result.error;
+                    if (result.data && result.data.value) playerSources = normalizePlayerSources(result.data.value);
+                    populatePlayerSourceSelector();
+                } catch (error) {
+                    playerSourcesLoadError = error;
+                    console.warn('Impossible de charger la configuration des lecteurs; les lecteurs par défaut sont utilisés.', error);
+                    populatePlayerSourceSelector();
+                } finally {
+                    playerSourcesReady = true;
+                }
+            }
+
+            async function savePlayerSources(sources) {
+                if (playerSourcesLoadError) {
+                    throw new Error('La configuration distante n’a pas pu être lue. Recharge la page avant de la modifier.');
+                }
+                var validatedSources = normalizePlayerSources(sources);
+                var result = await window.sb.from('settings').upsert({
+                    key: PLAYER_SOURCES_KEY,
+                    value: JSON.stringify(validatedSources)
+                }, { onConflict: 'key' });
+                if (result.error) throw result.error;
+                playerSources = validatedSources;
+                playerSourcesLoadError = null;
+                populatePlayerSourceSelector();
+                return validatedSources;
+            }
+
+            function addPlayerSourceField(parent, labelText, fieldName, value, placeholder) {
+                var label = document.createElement('label');
+                label.style.cssText = 'display:grid;gap:5px;color:rgba(255,255,255,.62);font-size:.78rem;font-weight:700;';
+                label.textContent = labelText;
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = fieldName === 'name' ? 40 : 1000;
+                input.value = value;
+                input.placeholder = placeholder;
+                input.dataset.field = fieldName;
+                input.style.cssText = 'width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1.5px solid rgba(184,224,247,.15);border-radius:8px;padding:9px 11px;color:#fff;font-family:Nunito,sans-serif;font-size:.84rem;';
+                label.appendChild(input);
+                parent.appendChild(label);
+            }
+
+            function renderPlayerSourcesPanel() {
+                var list = document.getElementById('player-sources-list');
+                var status = document.getElementById('player-sources-status');
+                if (!list || !status) return;
+                status.textContent = playerSourcesLoadError
+                    ? '⚠️ La configuration sauvegardée n’a pas pu être chargée. Les lecteurs par défaut sont affichés; vérifie l’accès à Supabase avant de les modifier.'
+                    : 'Modifie les URL ci-dessous. Paramètres disponibles : {id}, {season}, {episode}, {lang}.';
+                list.innerHTML = '';
+                playerSources.forEach(function (source, index) {
+                    var card = document.createElement('div');
+                    card.style.cssText = 'background:rgba(255,255,255,.035);border:1px solid rgba(184,224,247,.12);border-radius:12px;padding:14px;display:grid;gap:10px;';
+                    var title = document.createElement('strong');
+                    title.textContent = source.name;
+                    title.style.cssText = 'color:#fff;font-size:.92rem;';
+                    card.appendChild(title);
+                    var fields = document.createElement('div');
+                    fields.style.cssText = 'display:grid;gap:9px;';
+                    addPlayerSourceField(fields, 'Nom affiché', 'name', source.name, 'Nom du lecteur');
+                    addPlayerSourceField(fields, 'URL du film', 'movieUrl', source.movieUrl, 'https://exemple.com/movie/{id}');
+                    addPlayerSourceField(fields, 'URL de la série', 'tvUrl', source.tvUrl, 'https://exemple.com/tv/{id}/{season}/{episode}');
+                    card.appendChild(fields);
+                    var actions = document.createElement('div');
+                    actions.style.cssText = 'display:flex;gap:7px;flex-wrap:wrap;';
+                    function addAction(label, handler, danger) {
+                        var button = document.createElement('button');
+                        button.type = 'button';
+                        button.textContent = label;
+                        button.style.cssText = 'border:1px solid ' + (danger ? 'rgba(255,100,100,.35)' : 'rgba(184,224,247,.2)') + ';background:' + (danger ? 'rgba(255,70,70,.12)' : 'rgba(255,255,255,.07)') + ';color:#fff;padding:7px 11px;border-radius:8px;font-family:Nunito,sans-serif;font-weight:700;cursor:pointer;';
+                        button.addEventListener('click', handler);
+                        actions.appendChild(button);
+                    }
+                    addAction('💾 Enregistrer', async function () {
+                        var inputs = card.querySelectorAll('[data-field]');
+                        var updated = { id: source.id };
+                        inputs.forEach(function (input) { updated[input.dataset.field] = input.value; });
+                        try {
+                            await savePlayerSources(playerSources.map(function (item, itemIndex) {
+                                return itemIndex === index ? updated : item;
+                            }));
+                            renderPlayerSourcesPanel();
+                            window.toast('✅ Lecteur modifié et enregistré pour tous.');
+                        } catch (error) {
+                            window.toast('❌ Impossible d’enregistrer le lecteur : ' + error.message, true);
+                        }
+                    });
+                    addAction('↑', async function () {
+                        if (!index) return;
+                        var reordered = playerSources.slice();
+                        var previous = reordered[index - 1];
+                        reordered[index - 1] = reordered[index];
+                        reordered[index] = previous;
+                        try {
+                            await savePlayerSources(reordered);
+                            renderPlayerSourcesPanel();
+                        } catch (error) {
+                            window.toast('❌ Impossible de déplacer le lecteur : ' + error.message, true);
+                        }
+                    });
+                    addAction('↓', async function () {
+                        if (index >= playerSources.length - 1) return;
+                        var reordered = playerSources.slice();
+                        var next = reordered[index + 1];
+                        reordered[index + 1] = reordered[index];
+                        reordered[index] = next;
+                        try {
+                            await savePlayerSources(reordered);
+                            renderPlayerSourcesPanel();
+                        } catch (error) {
+                            window.toast('❌ Impossible de déplacer le lecteur : ' + error.message, true);
+                        }
+                    });
+                    addAction('🗑️ Supprimer', async function () {
+                        if (playerSources.length < 2) {
+                            window.toast('❌ Garde au moins un lecteur configuré.', true);
+                            return;
+                        }
+                        if (!window.confirm('Supprimer le lecteur « ' + source.name + ' » ?')) return;
+                        try {
+                            await savePlayerSources(playerSources.filter(function (item) { return item.id !== source.id; }));
+                            renderPlayerSourcesPanel();
+                            window.toast('✅ Lecteur supprimé.');
+                        } catch (error) {
+                            window.toast('❌ Impossible de supprimer le lecteur : ' + error.message, true);
+                        }
+                    }, true);
+                    card.appendChild(actions);
+                    list.appendChild(card);
+                });
+            }
+
+            window.addPlayerSource = async function () {
+                var nameInput = document.getElementById('new-player-source-name');
+                var movieInput = document.getElementById('new-player-source-movie');
+                var tvInput = document.getElementById('new-player-source-tv');
+                var name = nameInput.value.trim();
+                var sourceId;
+                do {
+                    sourceId = 'custom-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+                } while (playerSources.some(function (source) { return source.id === sourceId; }));
+                try {
+                    var newSource = validatePlayerSource({
+                        id: sourceId,
+                        name: name,
+                        movieUrl: movieInput.value.trim(),
+                        tvUrl: tvInput.value.trim()
+                    });
+                    await savePlayerSources(playerSources.concat([newSource]));
+                    nameInput.value = '';
+                    movieInput.value = '';
+                    tvInput.value = '';
+                    renderPlayerSourcesPanel();
+                    window.toast('✅ Lecteur ajouté et disponible dans le lecteur vidéo.');
+                } catch (error) {
+                    window.toast('❌ Impossible d’ajouter le lecteur : ' + error.message, true);
+                }
+            };
+
+            window._playerSourcesPromise = loadPlayerSources();
+
             function transformUrl(url, params) {
                 var selector = document.getElementById('player-source-selector');
-                var source = selector ? selector.value : 'zenix';
+                var source = playerSources.find(function (item) { return item.id === (selector ? selector.value : ''); }) || playerSources[0];
                 
                 var type, id, s, e;
                 if (params) {
@@ -12149,19 +12421,13 @@
 
                 if (!type || !id || !/^\d+$/.test(String(id))) return url || '';
 
-                if (source === 'zenix') {
-                    return window.buildZenixEmbedUrl(type, id, s, e, 'vf');
-                }
-
-                if (source === 'heiwastream') {
-                    if (type === 'movie') return 'https://heiwastream.fr/embed/movie/' + id + '?lang=vf&autoplay=1';
-                    if (type === 'tv') return 'https://heiwastream.fr/embed/tv/' + id + '/' + s + '/' + e + '?lang=vf&autoplay=1';
-                } else if (source === 'cinesrc') {
-                    if (type === 'movie') return 'https://cinesrc.st/embed/movie/' + id;
-                    if (type === 'tv') return 'https://cinesrc.st/embed/tv/' + id + '/' + s + '/' + e;
-                }
-                
-                return url;
+                var template = type === 'movie' ? source.movieUrl : (type === 'tv' ? source.tvUrl : '');
+                if (!template) return url || '';
+                return template
+                    .replace(/\{id\}/g, encodeURIComponent(String(id)))
+                    .replace(/\{season\}/g, encodeURIComponent(String(Math.max(1, parseInt(s, 10) || 1))))
+                    .replace(/\{episode\}/g, encodeURIComponent(String(Math.max(1, parseInt(e, 10) || 1))))
+                    .replace(/\{lang\}/g, 'vf');
             }
 
             window.changePlayerSource = function() {
@@ -12568,7 +12834,7 @@
                     var controllableVideo = getControllablePlayerVideo();
                     if (controllableVideo) controllableVideo.volume = volume;
                     else toast('Ce lecteur externe ne permet pas de régler le volume à distance.', true);
-                } else if (command.type === 'source' && ['zenix', 'heiwastream', 'cinesrc'].indexOf(command.value) !== -1) {
+                } else if (command.type === 'source' && playerSources.some(function (source) { return source.id === command.value; })) {
                     var selector = document.getElementById('player-source-selector');
                     if (selector) {
                         selector.value = command.value;
@@ -12753,6 +13019,12 @@
             }
 
             window.openPlayer = function (embedCode, title, cat, access, serie) {
+                if (!playerSourcesReady) {
+                    window._playerSourcesPromise.then(function () {
+                        window.openPlayer(embedCode, title, cat, access, serie);
+                    });
+                    return;
+                }
                 if (!(window.currentUser || currentUser)) {
                     toast('Connecte-toi ou crée un compte pour regarder ce contenu.', true);
                     window.openModal('login');
@@ -12816,7 +13088,7 @@
                 }
                 if (selector) {
                     selector.style.display = hasZenixSource || (contentContext && contentContext.tmdb_id) ? '' : 'none';
-                    selector.value = 'zenix';
+                    selector.value = playerSources[0].id;
                 }
 
                 if (serie) {
@@ -13176,6 +13448,9 @@
                 if (tab === 'themes' && !window._fpLoadedTabs.themes) {
                     renderThemeGrid();
                     window._fpLoadedTabs.themes = true;
+                }
+                if (tab === 'readers') {
+                    window._playerSourcesPromise.then(renderPlayerSourcesPanel);
                 }
             };
 
