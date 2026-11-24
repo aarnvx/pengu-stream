@@ -8935,6 +8935,7 @@
                     Suggestions</button>
                 <button class="fp-tab" id="tab-spotlight-btn" onclick="fpTab('spotlight',this)">🔥 Spotlight</button>
                 <button class="fp-tab" id="tab-maintenance-btn" onclick="fpTab('maintenance',this)">🛠️ Maintenance</button>
+                <button class="fp-tab" id="tab-releases-btn" onclick="fpTab('releases',this)">🆕 Nouveautés</button>
                 <button class="fp-tab" id="tab-majtmdb-btn" onclick="fpTab('majtmdb',this)">🔄 Maj Globale</button>
             </div>
 
@@ -9386,6 +9387,18 @@
                         En attente d’une action.
                     </div>
                 </div>
+            </div>
+
+            <!-- ── NOUVEAUTÉS ── -->
+            <div class="fp-section" id="fp-releases">
+                <p style="color:rgba(255,255,255,.55);font-size:.86rem;line-height:1.6;margin:0 0 16px;">
+                    Force le rechargement des rangées « Nouvelles séries » et « Nouveaux films » depuis TMDB si elles ne se sont pas actualisées automatiquement. Cette action rafraîchit l’affichage; elle n’ajoute pas de titres au catalogue.
+                </p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                    <button class="btn-tmdb" id="btn-refresh-new-series" type="button" onclick="refreshNewReleases('serie')">📺 Actualiser les nouvelles séries</button>
+                    <button class="btn-tmdb" id="btn-refresh-new-films" type="button" onclick="refreshNewReleases('film')">🎬 Actualiser les nouveaux films</button>
+                </div>
+                <p id="new-releases-refresh-status" role="status" aria-live="polite" style="color:rgba(255,255,255,.65);font-size:.85rem;min-height:22px;">En attente d’une actualisation.</p>
             </div>
 
             <!-- ── MAJ TMDB GLOBALE ── -->
@@ -11339,26 +11352,8 @@
                 renderTmdbTopTen();
                 renderHomeContinueWatching();
                 renderHomeRecommendations();
-                renderTmdbReleaseShelf({
-                    mediaType: 'tv',
-                    table: 'series',
-                    dateField: 'first_air_date',
-                    dateFilter: 'first_air_date',
-                    sortBy: 'first_air_date.desc',
-                    trackId: 'home-new-series-track',
-                    shelfId: 'home-new-series',
-                    type: 'serie'
-                });
-                renderTmdbReleaseShelf({
-                    mediaType: 'movie',
-                    table: 'films',
-                    dateField: 'release_date',
-                    dateFilter: 'release_date',
-                    sortBy: 'primary_release_date.desc',
-                    trackId: 'home-new-films-track',
-                    shelfId: 'home-new-films',
-                    type: 'film'
-                });
+                renderTmdbReleaseShelf(HOME_RELEASE_SHELF_OPTIONS.serie);
+                renderTmdbReleaseShelf(HOME_RELEASE_SHELF_OPTIONS.film);
                 renderTmdbTrendingSpotlight();
                 if (window._authReady && typeof window._authReady.then === 'function') {
                     window._authReady.then(function () {
@@ -11715,7 +11710,7 @@
             function renderTmdbReleaseShelf(options) {
                 var shelf = document.getElementById(options.shelfId);
                 var track = document.getElementById(options.trackId);
-                if (!shelf || !track) return;
+                if (!shelf || !track) return Promise.resolve({ count: 0, error: new Error('La rangée des nouveautés est introuvable.') });
 
                 shelf.hidden = false;
                 track.setAttribute('aria-busy', 'true');
@@ -11737,10 +11732,10 @@
                 dateParams.set(options.dateFilter + '.gte', yearAgo.toISOString().slice(0, 10));
                 dateParams.set(options.dateFilter + '.lte', todayString);
 
-                Promise.all([1, 2, 3, 4, 5].map(function (page) {
+                return Promise.all([1, 2, 3, 4, 5].map(function (page) {
                     var pageParams = new URLSearchParams(dateParams);
                     pageParams.set('page', String(page));
-                    return fetch('https://api.themoviedb.org/3/discover/' + options.mediaType + '?' + pageParams.toString())
+                    return fetch('https://api.themoviedb.org/3/discover/' + options.mediaType + '?' + pageParams.toString(), { cache: 'no-store' })
                         .then(function (response) {
                             if (!response.ok) throw new Error('TMDB a répondu avec le statut ' + response.status);
                             return response.json();
@@ -11798,9 +11793,10 @@
                         if (!items.length) {
                             shelf.hidden = true;
                             track.replaceChildren();
-                            return;
+                            return { count: 0 };
                         }
                         renderCards(items, track);
+                        return { count: items.length };
                     })
                     .catch(function (error) {
                         console.error('Impossible de charger les sorties TMDB (' + options.mediaType + ').', error);
@@ -11808,11 +11804,67 @@
                         message.className = 'home-top10-status';
                         message.textContent = 'Impossible de charger les nouveautés. Vérifie ta connexion puis recharge la page.';
                         track.replaceChildren(message);
+                        return { count: 0, error: error };
                     })
                     .finally(function () {
                         track.setAttribute('aria-busy', 'false');
                     });
             }
+
+            var HOME_RELEASE_SHELF_OPTIONS = {
+                serie: {
+                    mediaType: 'tv',
+                    table: 'series',
+                    dateField: 'first_air_date',
+                    dateFilter: 'first_air_date',
+                    sortBy: 'first_air_date.desc',
+                    trackId: 'home-new-series-track',
+                    shelfId: 'home-new-series',
+                    type: 'serie'
+                },
+                film: {
+                    mediaType: 'movie',
+                    table: 'films',
+                    dateField: 'release_date',
+                    dateFilter: 'release_date',
+                    sortBy: 'primary_release_date.desc',
+                    trackId: 'home-new-films-track',
+                    shelfId: 'home-new-films',
+                    type: 'film'
+                }
+            };
+
+            window.refreshNewReleases = function (type) {
+                if ((window.currentRole || 'user') !== 'fondateur') {
+                    window.toast('🚫 Réservé au fondateur.', true);
+                    return;
+                }
+                var options = HOME_RELEASE_SHELF_OPTIONS[type];
+                if (!options) {
+                    window.toast('❌ Type de nouveautés invalide.', true);
+                    return;
+                }
+                var button = document.getElementById(type === 'film' ? 'btn-refresh-new-films' : 'btn-refresh-new-series');
+                var status = document.getElementById('new-releases-refresh-status');
+                if (!button || !status) return;
+                button.disabled = true;
+                status.textContent = '⏳ Actualisation des ' + (type === 'film' ? 'nouveaux films' : 'nouvelles séries') + ' depuis TMDB…';
+                renderTmdbReleaseShelf(options).then(function (result) {
+                    if (result.error) {
+                        status.textContent = '❌ Échec de l’actualisation : ' + result.error.message;
+                        return;
+                    }
+                    var label = type === 'film' ? 'film(s)' : 'série(s)';
+                    status.textContent = result.count
+                        ? '✅ ' + result.count + ' ' + label + ' correspondant(s) au catalogue affiché(s), actualisés depuis TMDB.'
+                        : '✅ Rangée actualisée. Aucun contenu récent du catalogue ne correspond aux résultats TMDB.';
+                }).catch(function (error) {
+                    console.error('Actualisation manuelle des nouveautés impossible.', error);
+                    status.textContent = '❌ Impossible d’actualiser les nouveautés : ' + error.message;
+                }).finally(function () {
+                    button.disabled = false;
+                });
+            };
 
             function renderTmdbTopTen() {
                 var shelf = document.getElementById('home-top-films');
@@ -13399,9 +13451,13 @@
                 
                 var majTabBtn = document.getElementById('tab-majtmdb-btn');
                 var maintenanceTabBtn = document.getElementById('tab-maintenance-btn');
+                var releasesTabBtn = document.getElementById('tab-releases-btn');
                 var ri = ROLES[currentRole] || ROLES.user;
                 if (majTabBtn) {
                     majTabBtn.style.display = currentRole === 'fondateur' ? 'block' : 'none';
+                }
+                if (releasesTabBtn) {
+                    releasesTabBtn.style.display = currentRole === 'fondateur' ? 'block' : 'none';
                 }
                 if (maintenanceTabBtn) {
                     maintenanceTabBtn.style.display = ri.level >= 3 ? 'block' : 'none';
