@@ -11728,7 +11728,7 @@
                     language: 'fr-FR',
                     sort_by: options.sortBy
                 });
-                dateParams.set('vote_count.gte', '5');
+                if (options.minimumVotes) dateParams.set('vote_count.gte', String(options.minimumVotes));
                 dateParams.set(options.dateFilter + '.gte', yearAgo.toISOString().slice(0, 10));
                 dateParams.set(options.dateFilter + '.lte', todayString);
 
@@ -11755,38 +11755,38 @@
                         });
                         if (!tmdbItems.length) throw new Error('TMDB n’a renvoyé aucune sortie récente.');
 
-                        var fields = options.type === 'film'
-                            ? 'id,title,description,thumb_url,banner_url,cat,access,video_url,emoji,badge,tmdb_id'
-                            : 'id,title,description,thumb_url,banner_url,cat,access,emoji,badge,nb_saisons,tmdb_id';
                         var tmdbIds = tmdbItems.map(function (item) { return String(item.id); });
-                        return window.sb.from(options.table).select(fields).in('tmdb_id', tmdbIds)
+                        return window.sb.from(options.table).select('*').in('tmdb_id', tmdbIds)
                             .then(function (result) {
                                 if (result.error) throw new Error('Catalogue PenguStream : ' + result.error.message);
                                 var localByTmdbId = new Map((result.data || []).map(function (item) {
                                     return [String(item.tmdb_id), item];
                                 }));
-                                return tmdbItems.reduce(function (matched, tmdbItem) {
+                                return tmdbItems.map(function (tmdbItem) {
                                     var localItem = localByTmdbId.get(String(tmdbItem.id));
-                                    if (!localItem) return matched;
-                                    localItem.type = options.type;
-                                    localItem.timestamp = new Date(tmdbItem[options.dateField]).getTime();
-                                    localItem.releaseDate = tmdbItem[options.dateField];
-                                    localItem.thumbUrl = localItem.thumb_url || (tmdbItem.poster_path
-                                        ? 'https://image.tmdb.org/t/p/w342' + tmdbItem.poster_path : '');
-                                    localItem.bannerUrl = localItem.banner_url || (tmdbItem.backdrop_path
-                                        ? 'https://image.tmdb.org/t/p/w1280' + tmdbItem.backdrop_path : '');
-                                    localItem.cat = localItem.cat || (options.type === 'film' ? 'film' : 'serie');
-                                    localItem.emoji = localItem.emoji || (options.type === 'film' ? '🎬' : '📺');
-                                    localItem.badge = localItem.badge || (options.type === 'film' ? 'new' : 'serie');
-                                    localItem.access = localItem.access || 'all';
-                                    localItem.embedCode = localItem.video_url;
-                                    if (options.type === 'serie') {
-                                        localItem.nb_saisons = localItem.nb_saisons || 1;
-                                        localItem.episodes = [];
-                                    }
-                                    matched.push(localItem);
-                                    return matched;
-                                }, []).slice(0, 10);
+                                    var title = options.type === 'film'
+                                        ? (tmdbItem.title || tmdbItem.original_title || 'Film sans titre')
+                                        : (tmdbItem.name || tmdbItem.original_name || 'Série sans titre');
+                                    return Object.assign({}, localItem || {}, {
+                                        type: options.type,
+                                        tmdb_id: String(tmdbItem.id),
+                                        title: (localItem && localItem.title) || title,
+                                        description: (localItem && localItem.description) || tmdbItem.overview || '',
+                                        timestamp: new Date(tmdbItem[options.dateField]).getTime(),
+                                        releaseDate: tmdbItem[options.dateField],
+                                        thumbUrl: (localItem && localItem.thumb_url) || (tmdbItem.poster_path
+                                            ? 'https://image.tmdb.org/t/p/w342' + tmdbItem.poster_path : ''),
+                                        bannerUrl: (localItem && localItem.banner_url) || (tmdbItem.backdrop_path
+                                            ? 'https://image.tmdb.org/t/p/w1280' + tmdbItem.backdrop_path : ''),
+                                        cat: (localItem && localItem.cat) || (options.type === 'film' ? 'film' : 'serie'),
+                                        emoji: (localItem && localItem.emoji) || (options.type === 'film' ? '🎬' : '📺'),
+                                        badge: (localItem && localItem.badge) || (options.type === 'film' ? 'new' : 'serie'),
+                                        access: (localItem && localItem.access) || 'all',
+                                        embedCode: localItem && localItem.video_url || '',
+                                        episodes: options.type === 'serie' ? [] : undefined,
+                                        availableInCatalog: !!localItem
+                                    });
+                                }).slice(0, 10);
                             });
                     })
                     .then(function (items) {
@@ -11795,8 +11795,8 @@
                             track.replaceChildren();
                             return { count: 0 };
                         }
-                        renderCards(items, track);
-                        return { count: items.length };
+                        renderTmdbReleaseCards(items, track, options);
+                        return { count: items.length, availableCount: items.filter(function (item) { return item.availableInCatalog; }).length };
                     })
                     .catch(function (error) {
                         console.error('Impossible de charger les sorties TMDB (' + options.mediaType + ').', error);
@@ -11809,6 +11809,111 @@
                     .finally(function () {
                         track.setAttribute('aria-busy', 'false');
                     });
+            }
+
+            function renderTmdbReleaseCards(items, track, options) {
+                var fragment = document.createDocumentFragment();
+                items.forEach(function (item) {
+                    var title = item.title || 'Titre indisponible';
+                    var card = document.createElement('article');
+                    card.className = 'card home-tmdb-card';
+                    card.setAttribute('tabindex', '0');
+                    card.setAttribute('role', 'button');
+                    card.setAttribute('aria-label', item.availableInCatalog
+                        ? 'Ouvrir ' + title + ' dans le catalogue'
+                        : title + ', sortie TMDB, pas encore au catalogue');
+                    card.dataset.type = options.type;
+                    card.dataset.title = title;
+                    if (item.id) card.dataset[options.type === 'film' ? 'filmId' : 'serieId'] = item.id;
+
+                    var thumb = document.createElement('div');
+                    thumb.className = 'card-thumb';
+                    if (item.thumbUrl) {
+                        var poster = document.createElement('img');
+                        poster.src = window.optimizeCardPosterUrl(item.thumbUrl);
+                        poster.alt = 'Affiche de ' + title;
+                        poster.loading = 'lazy';
+                        poster.onerror = function () { poster.style.display = 'none'; };
+                        thumb.appendChild(poster);
+                    } else {
+                        var placeholder = document.createElement('span');
+                        placeholder.textContent = options.type === 'film' ? '🎬' : '📺';
+                        placeholder.setAttribute('aria-hidden', 'true');
+                        thumb.appendChild(placeholder);
+                    }
+                    var playButton = document.createElement('div');
+                    playButton.className = 'card-play-btn';
+                    var playIcon = document.createElement('div');
+                    playIcon.className = 'card-play-icon' + (item.availableInCatalog ? '' : ' no-video');
+                    playIcon.textContent = item.availableInCatalog ? '▶' : '🔒';
+                    playButton.appendChild(playIcon);
+                    thumb.appendChild(playButton);
+                    card.appendChild(thumb);
+
+                    var info = document.createElement('div');
+                    info.className = 'card-info';
+                    var tags = document.createElement('div');
+                    tags.className = 'card-tags-row';
+                    var typeTag = document.createElement('span');
+                    typeTag.className = 'card-type-tag-ext';
+                    typeTag.textContent = options.type === 'film' ? '🎬 FILM' : '📺 SÉRIE';
+                    tags.appendChild(typeTag);
+                    info.appendChild(tags);
+
+                    var cardTitle = document.createElement('div');
+                    cardTitle.className = 'card-title';
+                    cardTitle.textContent = title;
+                    info.appendChild(cardTitle);
+
+                    var releaseDate = document.createElement('div');
+                    releaseDate.className = 'card-meta';
+                    releaseDate.textContent = (options.type === 'film' ? 'Sorti le ' : 'Première diffusion le ')
+                        + new Date(item.releaseDate + 'T00:00:00').toLocaleDateString('fr-FR');
+                    info.appendChild(releaseDate);
+
+                    var status = document.createElement('span');
+                    status.className = 'card-badge' + (item.availableInCatalog ? ' badge-new' : '');
+                    status.textContent = item.availableInCatalog ? 'NOUVEAU' : 'À AJOUTER';
+                    if (!item.availableInCatalog) {
+                        status.style.background = 'rgba(184,224,247,.16)';
+                        status.style.color = 'rgba(255,255,255,.72)';
+                    }
+                    info.appendChild(status);
+                    card.appendChild(info);
+
+                    function openRelease() {
+                        if (!item.availableInCatalog) {
+                            window.toast('Cette sortie TMDB n’est pas encore disponible dans le catalogue PenguStream.');
+                            return;
+                        }
+                        window.openDetailModal({
+                            type: item.type,
+                            id: item.id,
+                            tmdb_id: item.tmdb_id,
+                            releaseDate: item.releaseDate,
+                            title: item.title,
+                            description: item.description || '',
+                            thumb: item.thumbUrl,
+                            banner: item.bannerUrl,
+                            emoji: item.emoji,
+                            badge: item.badge,
+                            cat: item.cat,
+                            access: item.access,
+                            embedCode: item.embedCode,
+                            nb_saisons: item.nb_saisons || 1,
+                            episodes: item.episodes || []
+                        });
+                    }
+                    card.addEventListener('click', openRelease);
+                    card.addEventListener('keydown', function (event) {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            openRelease();
+                        }
+                    });
+                    fragment.appendChild(card);
+                });
+                track.replaceChildren(fragment);
             }
 
             var HOME_RELEASE_SHELF_OPTIONS = {
@@ -11826,7 +11931,7 @@
                     mediaType: 'movie',
                     table: 'films',
                     dateField: 'release_date',
-                    dateFilter: 'release_date',
+                    dateFilter: 'primary_release_date',
                     sortBy: 'primary_release_date.desc',
                     trackId: 'home-new-films-track',
                     shelfId: 'home-new-films',
@@ -11856,8 +11961,8 @@
                     }
                     var label = type === 'film' ? 'film(s)' : 'série(s)';
                     status.textContent = result.count
-                        ? '✅ ' + result.count + ' ' + label + ' correspondant(s) au catalogue affiché(s), actualisés depuis TMDB.'
-                        : '✅ Rangée actualisée. Aucun contenu récent du catalogue ne correspond aux résultats TMDB.';
+                        ? '✅ ' + result.count + ' ' + label + ' récent(s) TMDB affiché(s), dont ' + result.availableCount + ' déjà au catalogue PenguStream.'
+                        : '✅ Rangée actualisée. Aucune sortie récente n’a été renvoyée par TMDB pour cette période.';
                 }).catch(function (error) {
                     console.error('Actualisation manuelle des nouveautés impossible.', error);
                     status.textContent = '❌ Impossible d’actualiser les nouveautés : ' + error.message;
