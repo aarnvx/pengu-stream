@@ -9392,13 +9392,16 @@
             <!-- ── NOUVEAUTÉS ── -->
             <div class="fp-section" id="fp-releases">
                 <p style="color:rgba(255,255,255,.55);font-size:.86rem;line-height:1.6;margin:0 0 16px;">
-                    Force le rechargement des rangées « Nouvelles séries » et « Nouveaux films » depuis TMDB si elles ne se sont pas actualisées automatiquement. Cette action rafraîchit l’affichage; elle n’ajoute pas de titres au catalogue.
+                    Coche uniquement les films et séries dont tu as vérifié la disponibilité en VF. Seuls ces titres apparaîtront dans les rangées de nouveautés; cette validation n’ajoute rien au catalogue.
                 </p>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-                    <button class="btn-tmdb" id="btn-refresh-new-series" type="button" onclick="refreshNewReleases('serie')">📺 Actualiser les nouvelles séries</button>
-                    <button class="btn-tmdb" id="btn-refresh-new-films" type="button" onclick="refreshNewReleases('film')">🎬 Actualiser les nouveaux films</button>
+                    <button class="btn-tmdb" id="btn-load-vf-series" type="button" onclick="loadVfCandidates('serie')">📺 Charger les séries à vérifier</button>
+                    <button class="btn-tmdb" id="btn-load-vf-films" type="button" onclick="loadVfCandidates('film')">🎬 Charger les films à vérifier</button>
                 </div>
-                <p id="new-releases-refresh-status" role="status" aria-live="polite" style="color:rgba(255,255,255,.65);font-size:.85rem;min-height:22px;">En attente d’une actualisation.</p>
+                <p id="vf-validation-status" role="status" aria-live="polite" style="color:rgba(255,255,255,.65);font-size:.85rem;min-height:22px;">En attente du chargement des titres TMDB.</p>
+                <div id="vf-candidates-film" hidden style="max-height:420px;overflow:auto;gap:8px;margin-bottom:12px;"></div>
+                <div id="vf-candidates-serie" hidden style="max-height:420px;overflow:auto;gap:8px;margin-bottom:12px;"></div>
+                <button class="btn-fp-action" id="btn-save-vf-candidates" type="button" onclick="saveVfCandidates()" disabled>💾 Enregistrer les validations VF</button>
             </div>
 
             <!-- ── MAJ TMDB GLOBALE ── -->
@@ -11707,18 +11710,43 @@
                     });
             }
 
-            function renderTmdbReleaseShelf(options) {
-                var shelf = document.getElementById(options.shelfId);
-                var track = document.getElementById(options.trackId);
-                if (!shelf || !track) return Promise.resolve({ count: 0, error: new Error('La rangée des nouveautés est introuvable.') });
+            var TMDB_VF_VALIDATIONS_KEY = 'tmdb_vf_validations';
+            var _tmdbVfVerified = { film: [], serie: [] };
+            var _tmdbVfLoadError = null;
+            var _tmdbVfCandidates = {};
+            var _tmdbVfCurrentType = null;
 
-                shelf.hidden = false;
-                track.setAttribute('aria-busy', 'true');
-                var loading = document.createElement('p');
-                loading.className = 'home-top10-status';
-                loading.textContent = 'Chargement des dernières sorties…';
-                track.replaceChildren(loading);
+            function normalizeTmdbVfValidations(value) {
+                var parsed = value;
+                if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                if (!parsed || typeof parsed !== 'object') throw new Error('La liste des validations VF est invalide.');
+                function normalizeIds(ids) {
+                    if (!Array.isArray(ids)) return [];
+                    return Array.from(new Set(ids.map(function (id) { return String(id); })
+                        .filter(function (id) { return /^\d+$/.test(id); })));
+                }
+                return {
+                    film: normalizeIds(parsed.film),
+                    serie: normalizeIds(parsed.serie)
+                };
+            }
 
+            async function loadTmdbVfValidations() {
+                try {
+                    var result = await window.sb.from('settings').select('value').eq('key', TMDB_VF_VALIDATIONS_KEY).maybeSingle();
+                    if (result.error) throw result.error;
+                    if (result.data && result.data.value) _tmdbVfVerified = normalizeTmdbVfValidations(result.data.value);
+                } catch (error) {
+                    _tmdbVfLoadError = error;
+                    _tmdbVfVerified = { film: [], serie: [] };
+                    console.error('Impossible de charger les validations VF; les nouveautés restent masquées.', error);
+                }
+                return _tmdbVfVerified;
+            }
+
+            var _tmdbVfLoadPromise = loadTmdbVfValidations();
+
+            function fetchTmdbReleaseCandidates(options) {
                 var today = new Date();
                 var todayString = today.toISOString().slice(0, 10);
                 var yearAgo = new Date(today);
@@ -11740,21 +11768,143 @@
                             if (!response.ok) throw new Error('TMDB a répondu avec le statut ' + response.status);
                             return response.json();
                         });
-                }))
-                    .then(function (pages) {
-                        var moviesById = new Map();
-                        pages.forEach(function (page) {
-                            (page.results || []).forEach(function (item) {
-                                if (item.id && item[options.dateField] && item[options.dateField] <= todayString) {
-                                    moviesById.set(String(item.id), item);
-                                }
-                            });
+                })).then(function (pages) {
+                    var itemsById = new Map();
+                    pages.forEach(function (page) {
+                        (page.results || []).forEach(function (item) {
+                            if (item.id && item[options.dateField] && item[options.dateField] <= todayString) {
+                                itemsById.set(String(item.id), item);
+                            }
                         });
-                        var tmdbItems = Array.from(moviesById.values()).sort(function (a, b) {
-                            return b[options.dateField].localeCompare(a[options.dateField]);
-                        });
-                        if (!tmdbItems.length) throw new Error('TMDB n’a renvoyé aucune sortie récente.');
+                    });
+                    return Array.from(itemsById.values()).sort(function (a, b) {
+                        return b[options.dateField].localeCompare(a[options.dateField]);
+                    });
+                });
+            }
 
+            async function saveTmdbVfValidations(validations) {
+                if (_tmdbVfLoadError) throw new Error('Les validations VF n’ont pas pu être chargées. Recharge la page avant de les modifier.');
+                var normalized = normalizeTmdbVfValidations(validations);
+                var result = await window.sb.from('settings').upsert({
+                    key: TMDB_VF_VALIDATIONS_KEY,
+                    value: JSON.stringify(normalized)
+                }, { onConflict: 'key' });
+                if (result.error) throw result.error;
+                _tmdbVfVerified = normalized;
+                return normalized;
+            }
+
+            window.loadVfCandidates = async function (type) {
+                if ((window.currentRole || 'user') !== 'fondateur') {
+                    window.toast('🚫 Réservé au fondateur.', true);
+                    return;
+                }
+                var options = HOME_RELEASE_SHELF_OPTIONS[type];
+                var status = document.getElementById('vf-validation-status');
+                var container = document.getElementById('vf-candidates-' + type);
+                var saveButton = document.getElementById('btn-save-vf-candidates');
+                if (!options || !status || !container || !saveButton) return;
+                _tmdbVfCurrentType = null;
+                document.getElementById('vf-candidates-film').hidden = true;
+                document.getElementById('vf-candidates-serie').hidden = true;
+                status.textContent = '⏳ Chargement des sorties récentes depuis TMDB…';
+                saveButton.disabled = true;
+                container.hidden = true;
+                try {
+                    await _tmdbVfLoadPromise;
+                    if (_tmdbVfLoadError) throw new Error('Impossible de lire la liste des titres VF validés.');
+                    var items = await fetchTmdbReleaseCandidates(options);
+                    if (!items.length) throw new Error('Aucune sortie récente trouvée sur TMDB.');
+                    _tmdbVfCurrentType = type;
+                    _tmdbVfCandidates[type] = items;
+                    container.replaceChildren();
+                    var verifiedIds = new Set(_tmdbVfVerified[type]);
+                    items.forEach(function (item) {
+                        var title = type === 'film'
+                            ? (item.title || item.original_title || 'Film sans titre')
+                            : (item.name || item.original_name || 'Série sans titre');
+                        var label = document.createElement('label');
+                        label.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid rgba(184,224,247,.14);border-radius:9px;background:rgba(255,255,255,.035);cursor:pointer;';
+                        var checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = String(item.id);
+                        checkbox.checked = verifiedIds.has(String(item.id));
+                        checkbox.style.cssText = 'margin-top:3px;accent-color:#17a589;';
+                        var details = document.createElement('span');
+                        details.style.cssText = 'display:grid;gap:3px;';
+                        var titleLine = document.createElement('strong');
+                        titleLine.textContent = title;
+                        titleLine.style.cssText = 'color:#fff;font-size:.86rem;';
+                        var dateLine = document.createElement('span');
+                        dateLine.textContent = (item[options.dateField] || '') + ' · TMDB #' + item.id
+                            + (checkbox.checked ? ' · VF validée' : ' · VF à vérifier');
+                        dateLine.style.cssText = 'color:rgba(255,255,255,.5);font-size:.75rem;';
+                        checkbox.addEventListener('change', function () {
+                            dateLine.textContent = (item[options.dateField] || '') + ' · TMDB #' + item.id
+                                + (checkbox.checked ? ' · VF validée' : ' · VF à vérifier');
+                        });
+                        details.appendChild(titleLine);
+                        details.appendChild(dateLine);
+                        label.appendChild(checkbox);
+                        label.appendChild(details);
+                        container.appendChild(label);
+                    });
+                    container.hidden = false;
+                    container.style.display = 'grid';
+                    saveButton.disabled = false;
+                    status.textContent = items.length + ' sorties trouvées. Coche uniquement les titres dont tu as confirmé la VF, puis enregistre.';
+                } catch (error) {
+                    console.error('Chargement des titres à vérifier impossible.', error);
+                    status.textContent = '❌ ' + error.message;
+                }
+            };
+
+            window.saveVfCandidates = async function () {
+                var type = _tmdbVfCurrentType;
+                var status = document.getElementById('vf-validation-status');
+                var saveButton = document.getElementById('btn-save-vf-candidates');
+                var container = type && document.getElementById('vf-candidates-' + type);
+                if (!type || !container || !saveButton || !status || !Array.isArray(_tmdbVfCandidates[type])) return;
+                saveButton.disabled = true;
+                try {
+                    var candidateIds = new Set(_tmdbVfCandidates[type].map(function (item) { return String(item.id); }));
+                    var keptIds = _tmdbVfVerified[type].filter(function (id) { return !candidateIds.has(id); });
+                    var selectedIds = Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
+                        .map(function (input) { return String(input.value); });
+                    var next = { film: _tmdbVfVerified.film.slice(), serie: _tmdbVfVerified.serie.slice() };
+                    next[type] = Array.from(new Set(keptIds.concat(selectedIds)));
+                    await saveTmdbVfValidations(next);
+                    status.textContent = '✅ ' + selectedIds.length + ' titre(s) ' + (type === 'film' ? 'film' : 'série')
+                        + ' validé(s) en VF. Seuls ces titres seront affichés dans les nouveautés.';
+                    if (window.PENGU_IS_HOME) renderTmdbReleaseShelf(HOME_RELEASE_SHELF_OPTIONS[type]);
+                } catch (error) {
+                    console.error('Enregistrement des validations VF impossible.', error);
+                    status.textContent = '❌ Impossible d’enregistrer les validations VF : ' + error.message;
+                } finally {
+                    saveButton.disabled = false;
+                }
+            };
+
+            function renderTmdbReleaseShelf(options) {
+                var shelf = document.getElementById(options.shelfId);
+                var track = document.getElementById(options.trackId);
+                if (!shelf || !track) return Promise.resolve({ count: 0, error: new Error('La rangée des nouveautés est introuvable.') });
+
+                shelf.hidden = false;
+                track.setAttribute('aria-busy', 'true');
+                var loading = document.createElement('p');
+                loading.className = 'home-top10-status';
+                loading.textContent = 'Chargement des dernières sorties…';
+                track.replaceChildren(loading);
+
+                return _tmdbVfLoadPromise.then(function () {
+                    if (_tmdbVfLoadError) throw new Error('Impossible de charger les validations VF.');
+                    var verifiedIds = new Set(_tmdbVfVerified[options.type]);
+                    if (!verifiedIds.size) return [];
+                    return fetchTmdbReleaseCandidates(options).then(function (allItems) {
+                        var tmdbItems = allItems.filter(function (item) { return verifiedIds.has(String(item.id)); }).slice(0, 10);
+                        if (!tmdbItems.length) return [];
                         var tmdbIds = tmdbItems.map(function (item) { return String(item.id); });
                         return window.sb.from(options.table).select('*').in('tmdb_id', tmdbIds)
                             .then(function (result) {
@@ -11786,17 +11936,17 @@
                                         episodes: options.type === 'serie' ? [] : undefined,
                                         availableInCatalog: !!localItem
                                     });
-                                }).slice(0, 10);
+                                    });
                             });
                     })
-                    .then(function (items) {
+                }).then(function (items) {
                         if (!items.length) {
                             shelf.hidden = true;
                             track.replaceChildren();
                             return { count: 0 };
                         }
                         renderTmdbReleaseCards(items, track, options);
-                        return { count: items.length, availableCount: items.filter(function (item) { return item.availableInCatalog; }).length };
+                        return { count: items.length };
                     })
                     .catch(function (error) {
                         console.error('Impossible de charger les sorties TMDB (' + options.mediaType + ').', error);
@@ -11856,7 +12006,7 @@
                     tags.className = 'card-tags-row';
                     var typeTag = document.createElement('span');
                     typeTag.className = 'card-type-tag-ext';
-                    typeTag.textContent = options.type === 'film' ? '🎬 FILM' : '📺 SÉRIE';
+                    typeTag.textContent = options.type === 'film' ? '🎬 FILM · VF' : '📺 SÉRIE · VF';
                     tags.appendChild(typeTag);
                     info.appendChild(tags);
 
@@ -11937,38 +12087,6 @@
                     shelfId: 'home-new-films',
                     type: 'film'
                 }
-            };
-
-            window.refreshNewReleases = function (type) {
-                if ((window.currentRole || 'user') !== 'fondateur') {
-                    window.toast('🚫 Réservé au fondateur.', true);
-                    return;
-                }
-                var options = HOME_RELEASE_SHELF_OPTIONS[type];
-                if (!options) {
-                    window.toast('❌ Type de nouveautés invalide.', true);
-                    return;
-                }
-                var button = document.getElementById(type === 'film' ? 'btn-refresh-new-films' : 'btn-refresh-new-series');
-                var status = document.getElementById('new-releases-refresh-status');
-                if (!button || !status) return;
-                button.disabled = true;
-                status.textContent = '⏳ Actualisation des ' + (type === 'film' ? 'nouveaux films' : 'nouvelles séries') + ' depuis TMDB…';
-                renderTmdbReleaseShelf(options).then(function (result) {
-                    if (result.error) {
-                        status.textContent = '❌ Échec de l’actualisation : ' + result.error.message;
-                        return;
-                    }
-                    var label = type === 'film' ? 'film(s)' : 'série(s)';
-                    status.textContent = result.count
-                        ? '✅ ' + result.count + ' ' + label + ' récent(s) TMDB affiché(s), dont ' + result.availableCount + ' déjà au catalogue PenguStream.'
-                        : '✅ Rangée actualisée. Aucune sortie récente n’a été renvoyée par TMDB pour cette période.';
-                }).catch(function (error) {
-                    console.error('Actualisation manuelle des nouveautés impossible.', error);
-                    status.textContent = '❌ Impossible d’actualiser les nouveautés : ' + error.message;
-                }).finally(function () {
-                    button.disabled = false;
-                });
             };
 
             function renderTmdbTopTen() {
