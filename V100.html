@@ -11941,8 +11941,11 @@
                     })
                 }).then(function (items) {
                         if (!items.length) {
-                            shelf.hidden = true;
-                            track.replaceChildren();
+                            shelf.hidden = false;
+                            var emptyState = document.createElement('p');
+                            emptyState.className = 'home-top10-status';
+                            emptyState.textContent = 'Aucun titre validé en VF pour le moment. Les titres confirmés apparaîtront ici.';
+                            track.replaceChildren(emptyState);
                             return { count: 0 };
                         }
                         renderTmdbReleaseCards(items, track, options);
