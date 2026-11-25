@@ -8507,6 +8507,40 @@
         </div>
     </div>
 
+    <section class="home-shelf" id="home-new-series" data-home-shelf hidden aria-labelledby="home-new-series-title">
+        <div class="home-section-heading">
+            <div>
+                <h2 id="home-new-series-title">NOUVELLES SÉRIES</h2>
+                <p class="section-sub" style="margin:5px 0 0;">Classées par date de première diffusion</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;">
+                <a class="home-section-link" href="catalogue.html" target="_top">Voir tout ›</a>
+                <div class="home-shelf-arrows" aria-label="Défiler les séries">
+                    <button class="home-shelf-arrow" type="button" aria-label="Séries précédentes" onclick="window.scrollHomeShelf('home-new-series-track', -1)">‹</button>
+                    <button class="home-shelf-arrow" type="button" aria-label="Séries suivantes" onclick="window.scrollHomeShelf('home-new-series-track', 1)">›</button>
+                </div>
+            </div>
+        </div>
+        <div class="home-shelf-track" id="home-new-series-track"></div>
+    </section>
+
+    <section class="home-shelf" id="home-new-films" data-home-shelf hidden aria-labelledby="home-new-films-title">
+        <div class="home-section-heading">
+            <div>
+                <h2 id="home-new-films-title">NOUVEAUX FILMS</h2>
+                <p class="section-sub" style="margin:5px 0 0;">Classés par date de sortie</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;">
+                <a class="home-section-link" href="catalogue.html" target="_top">Voir tout ›</a>
+                <div class="home-shelf-arrows" aria-label="Défiler les nouveautés">
+                    <button class="home-shelf-arrow" type="button" aria-label="Films précédents" onclick="window.scrollHomeShelf('home-new-films-track', -1)">‹</button>
+                    <button class="home-shelf-arrow" type="button" aria-label="Films suivants" onclick="window.scrollHomeShelf('home-new-films-track', 1)">›</button>
+                </div>
+            </div>
+        </div>
+        <div class="home-shelf-track" id="home-new-films-track"></div>
+    </section>
+
     <section class="home-shelf" id="home-continue-watching" data-home-shelf hidden aria-labelledby="home-continue-watching-title">
         <div class="home-section-heading">
             <div>
@@ -8568,40 +8602,6 @@
             </div>
         </div>
         <div class="home-shelf-track" id="home-top-films-track"></div>
-    </section>
-
-    <section class="home-shelf" id="home-new-series" data-home-shelf hidden aria-labelledby="home-new-series-title">
-        <div class="home-section-heading">
-            <div>
-                <h2 id="home-new-series-title">NOUVELLES SÉRIES</h2>
-                <p class="section-sub" style="margin:5px 0 0;">Classées par date de première diffusion</p>
-            </div>
-            <div style="display:flex;align-items:center;gap:14px;">
-                <a class="home-section-link" href="catalogue.html" target="_top">Voir tout ›</a>
-                <div class="home-shelf-arrows" aria-label="Défiler les séries">
-                    <button class="home-shelf-arrow" type="button" aria-label="Séries précédentes" onclick="window.scrollHomeShelf('home-new-series-track', -1)">‹</button>
-                    <button class="home-shelf-arrow" type="button" aria-label="Séries suivantes" onclick="window.scrollHomeShelf('home-new-series-track', 1)">›</button>
-                </div>
-            </div>
-        </div>
-        <div class="home-shelf-track" id="home-new-series-track"></div>
-    </section>
-
-    <section class="home-shelf" id="home-new-films" data-home-shelf hidden aria-labelledby="home-new-films-title">
-        <div class="home-section-heading">
-            <div>
-                <h2 id="home-new-films-title">NOUVEAUX FILMS</h2>
-                <p class="section-sub" style="margin:5px 0 0;">Classés par date de sortie</p>
-            </div>
-            <div style="display:flex;align-items:center;gap:14px;">
-                <a class="home-section-link" href="catalogue.html" target="_top">Voir tout ›</a>
-                <div class="home-shelf-arrows" aria-label="Défiler les nouveautés">
-                    <button class="home-shelf-arrow" type="button" aria-label="Films précédents" onclick="window.scrollHomeShelf('home-new-films-track', -1)">‹</button>
-                    <button class="home-shelf-arrow" type="button" aria-label="Films suivants" onclick="window.scrollHomeShelf('home-new-films-track', 1)">›</button>
-                </div>
-            </div>
-        </div>
-        <div class="home-shelf-track" id="home-new-films-track"></div>
     </section>
 
     <!-- SAGAS PAGE -->
